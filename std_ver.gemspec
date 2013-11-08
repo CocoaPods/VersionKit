@@ -1,7 +1,7 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'std_ver/gem_constants'
+require 'std_ver/gem_metadata'
 
 Gem::Specification.new do |spec|
   spec.name          = "std_ver"

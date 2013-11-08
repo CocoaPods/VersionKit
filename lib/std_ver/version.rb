@@ -36,7 +36,6 @@ module StdVer
       @build_metadata = split_identifiers(parts[2])
     end
 
-
     public
 
     # @!group Class methods
@@ -50,18 +49,23 @@ module StdVer
 
     def self.normalize(version)
       version = version.strip.to_s
-      version << '.0' if version  =~ /\A[0-9]+\Z/
-      version << '.0' if version  =~ /\A[0-9]+\.[0-9]+\Z/
+      version << ".0" if version  =~ /\A[0-9]+\Z/
+      version << ".0" if version  =~ /\A[0-9]+\.[0-9]+\Z/
       version
     end
 
-    # @return [RegEx] The regular expression to use to validate a string representation of a version.
+    # @return [RegEx] The regular expression to use to validate a string
+    #         representation of a version.
+    #
+    # rubocop:disable LineLength,
     #
     VERSION_PATTERN = /\A
-     [0-9]+\.[0-9]+\.[0-9]+               (?# Main version: Three dot-separated numeric identifiers. )
-     ([-][0-9a-z-]+(\.[0-9a-z-]+)*)?      (?# Pre-release Version: Hyphen, followed by any combination of digits, letters, or hyphens separated by periods. )
-     ([+][0-9a-z-]+(\.[0-9a-z-]+)*)?      (?# Build Metadata: Plus sign, followed by any combination of digits, letters, or hyphens separated by periods. )
+     [0-9]+\.[0-9]+\.[0-9]+           (?# Main version: Three dot-separated numeric identifiers. )
+     ([-][0-9a-z-]+(\.[0-9a-z-]+)*)?  (?# Pre-release Version: Hyphen, followed by any combination of digits, letters, or hyphens separated by periods. )
+     ([+][0-9a-z-]+(\.[0-9a-z-]+)*)?  (?# Build Metadata: Plus sign, followed by any combination of digits, letters, or hyphens separated by periods. )
     \Z/xi
+    #
+    # rubocop:enable LineLength,
 
     # @return [Bool] Whether a string representation of a version is can be
     #         accepted by this class. This comparison is much more lenient than
@@ -71,7 +75,6 @@ module StdVer
     def self.valid?(string_reppresentation)
       !(string_reppresentation.to_s =~ VERSION_PATTERN).nil?
     end
-
 
     public
 
@@ -87,7 +90,7 @@ module StdVer
     # @return [String] a string representation suitable for debugging.
     #
     def inspect
-      "<#{self.class} #{self.to_s}>"
+      "<#{self.class} #{to_s}>"
     end
 
     def ==(other)
@@ -100,11 +103,11 @@ module StdVer
     #
     # @param  [Object] The object to compare.
     #
-    # @return [Bool] whether a hash should consider other as an equal key to the
-    #         instance.
+    # @return [Bool] whether a hash should consider other as an equal key to
+    #         the instance.
     #
     def eql?(other)
-      self.class === other && to_s == other.to_s
+      self.class == other.class && to_s == other.to_s
     end
 
     # @return [Fixnum] The hash value for this instance.
@@ -121,8 +124,8 @@ module StdVer
     #         equal to other. 1 means self is bigger than other.
     # @return [Nil] If the two objects could not be compared.
     #
-    def <=> other
-      return nil unless Version === other
+    def <=>(other)
+      return nil unless other.class == self.class
 
       main_version.each_with_index do |identifier, index|
         comparison = identifier <=> other.main_version[index]
@@ -137,7 +140,8 @@ module StdVer
         return 0
       end
 
-      pre_release_identifiers_count = [pre_release_version.count, other.pre_release_version.count].min
+      pre_release_identifiers_count =
+        [pre_release_version.count, other.pre_release_version.count].min
 
       pre_release_identifiers_count.times do |index|
         self_identifier = pre_release_version[index]
@@ -159,9 +163,8 @@ module StdVer
         return 1
       end
 
-      return 0
+      0
     end
-
 
     public
 
@@ -186,7 +189,8 @@ module StdVer
       main_version[2]
     end
 
-    # @return [Boolean] Indicates whether or not the version is a pre-release version.
+    # @return [Boolean] Indicates whether or not the version is a pre-release
+    #         version.
     #
     # @note   Pre-release version contain a hyphen and/or a letter.
     #
@@ -212,7 +216,6 @@ module StdVer
       end
     end
 
-
     public
 
     # @!group Next Versions
@@ -235,7 +238,8 @@ module StdVer
     # @return [Version]
     #
     def next_patch
-      new_main_version = [main_version[0], main_version[1], main_version[2] +  1]
+      new_main_version =
+        [main_version[0], main_version[1], main_version[2].succ]
       Version.new(version_to_string(new_main_version))
     end
 
@@ -243,7 +247,7 @@ module StdVer
     # @return [Nil]
     #
     def next_pre_release
-        return nil unless pre_release_version
+      return nil unless pre_release_version
       new_pre_release_version = []
 
       pre_release_version.each do |identifier|
@@ -251,7 +255,7 @@ module StdVer
         if identifier.is_a?(Fixnum)
           new_identifier = identifier.succ
         else
-          buffer = ''
+          buffer = ""
           did_bump = false
           identifier.scan(/[0-9]+|[a-z]+/i).map do |segment|
             if /^\d+$/ =~ segment
@@ -285,7 +289,8 @@ module StdVer
     # @return [Array<Version>]
     #
     def next_versions
-      @next_versions ||= [next_major, next_minor, next_patch, next_pre_release].compact
+      @next_versions ||=
+        [next_major, next_minor, next_patch, next_pre_release].compact
     end
 
     # @return [Bool]
@@ -294,6 +299,15 @@ module StdVer
       next_versions.map(&:to_s).include?(version.to_s)
     end
 
+    def bump(component)
+      if component <= 0
+        next_major
+      elsif component == 1
+        next_minor
+      else
+        next_patch
+      end
+    end
 
     private
 
@@ -304,7 +318,7 @@ module StdVer
     #
     def split_identifiers(version_part)
       if version_part
-        version_part.split('.').map do |identifier|
+        version_part.split(".").map do |identifier|
           if identifier =~ /\A[0-9]+\Z/
             identifier.to_i
           else
@@ -328,20 +342,21 @@ module StdVer
 
     # @return [String]
     #
-    def version_to_string(main_version, pre_release_version = nil, build_metadata = nil)
-      result = main_version.join('.')
+    def version_to_string(main_version,
+                          pre_release_version = nil,
+                          build_metadata = nil)
+      result = main_version.join(".")
 
       if pre_release_version && pre_release_version.count > 0
-        result << '-' << pre_release_version.join('.')
+        result << "-" << pre_release_version.join(".")
       end
 
       if build_metadata && build_metadata.count > 0
-        result << '+' << build_metadata.join('.')
+        result << "+" << build_metadata.join(".")
       end
 
       result
     end
-
 
     #-------------------------------------------------------------------------#
 

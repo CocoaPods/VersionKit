@@ -1,110 +1,144 @@
 module StdVer
 
-  #
+  # Describes a constraint on the acceptable elements of a list of versions.
+  # The only relevant method for this class is the `#satisfied_by?` method.
   #
   class Requirement
 
-    include Comparable
-
-    OPERATORS_LAMBDAS = {
-      "="  =>  lambda { |candidate, version| versionify(candidate) == versionify(version) },
-      "!=" =>  lambda { |candidate, version| versionify(candidate) != versionify(version) },
-      ">"  =>  lambda { |candidate, version| versionify(candidate) >  versionify(version) },
-      "<"  =>  lambda { |candidate, version| versionify(candidate) <  versionify(version) },
-      ">=" =>  lambda { |candidate, version| versionify(candidate) >= versionify(version) },
-      "<=" =>  lambda { |candidate, version| versionify(candidate) <= versionify(version) },
-      "~>" =>  lambda { |candidate, version| versionify(candidate) >= versionify(version) && versionify(candidate).release_version < bump(version) }
-    }
-
-    # quoted  = OPS.keys.map { |k| Regexp.quote k }.join "|"
-    # PATTERN = /\A\s*(#{quoted})?\s*(#{Gem::Version::VERSION_PATTERN})\s*\z/
-
+    # @return [String] The operator of the constraint.
+    #
     attr_reader :operator
-    attr_reader :version
 
+    # @return [String] The reference version of the operator.
+    #
+    attr_reader :reference_version
+
+    # @return [Hash {String=>Lambda}] The operators supported by this class
+    #         associated to the lambda used to evaluate them.
+    #
+    OPERATORS = ["=", "!=", ">", "<", ">=", "<=", "~>"]
+
+    # @param  [String] string The string representation of the requirement.
+    #
     def initialize(string)
-      splitted = string.strip.split(' ')
-      if splitted.count == 1
-        operator = '='
-        version = splitted[0]
-      else
-        operator = splitted[0]
-        version = splitted[1]
-      end
-      version = Version.normalize(version)
-
-      unless OPERATORS_LAMBDAS.include?(operator)
-        raise ArgumentError, "Unsupported operator `#{operator}` requirement `#{string}`"
-      end
-
-      unless Version.valid?(version)
-        raise ArgumentError, "Malformed version `#{version}` for requirement `#{string}`"
-      end
+      operator, reference_version = parse_string(string)
+      check_parsing(string, operator, reference_version)
 
       @operator = operator
-      @version = version
+      @reference_version = reference_version
+      @reference = Version.lenient_new(reference_version)
     end
 
+    # @param  [String] candidate_version
+    #
+    # @return [Bool] Whether a given version is accepted by the given
+    #         requirement.
+    #
+    # rubocop:disable MethodLength,
+    #
     def satisfied_by?(candidate_version)
-      OPERATORS_LAMBDAS[operator].call(candidate_version, version)
-    end
+      candidate = Version.lenient_new(candidate_version)
+      reference = @reference
 
+      case operator
+      when "="  then candidate == reference
+      when "!=" then candidate != reference
+      when ">"  then candidate >  reference
+      when "<"  then candidate <  reference
+      when ">=" then candidate >= reference
+      when "<=" then candidate <= reference
+      when "~>"
+        candidate >= reference && candidate < bumped_reference_version
+      end
+    end
+    #
+    # rubocop:enable MethodLength,
 
     public
 
     # @!group Object methods
     #-------------------------------------------------------------------------#
 
+    # @return [String] the string representation of this class. The string is
+    #         equivalent, but not strictly equal, to the one used on
+    #         initialization.
+    #
     def to_s
-      "#{operator} #{version}"
+      "#{operator} #{reference_version}"
     end
 
-    def <=> other
+    # @return [Fixnum] Useful for sorting a list of requirements.
+    #
+    def <=>(other)
       to_s <=> other.to_s
     end
 
+    # @return [Fixnum] The hash of the instance.
+    #
     def hash
       to_s.hash
     end
 
+    def ==(other)
+      operator == other.operator &&
+        reference_version == other.reference_version
+    end
 
     private
 
     # @!group Private Helpers
     #-------------------------------------------------------------------------#
 
-    def self.versionify(string)
-      Version.lenient_new(string)
+    # @param  [String] string
+    #
+    # @return [Array<String, String>]
+    #
+    def parse_string(string)
+      splitted = string.to_s.strip.split(" ")
+      if splitted.count == 1
+        operator = "="
+        version = splitted[0]
+      else
+        operator = splitted[0]
+        version = splitted[1]
+      end
+      version = Version.normalize(version) if version
+      [operator, version]
     end
 
-    def self.bump(string)
-      main_version = string.scan(/[^-+]+/).first
-      identifiers = main_version.split('.').map(&:to_i)
-      identifiers.pop if identifiers.size > 1
-      identifiers[-1] = identifiers[-1].succ
-      versionify(identifiers.join('.'))
+    # @param  [String] string
+    #
+    # @param  [String] operator
+    #
+    # @param  [String] version
+    #
+    # @return [void] Checks that the initialization string and the result of
+    #         the parsing are acceptable.
+    #
+    def check_parsing(string, operator, version)
+      unless OPERATORS.include?(operator)
+        raise ArgumentError, "Unsupported operator `#{operator}` " \
+          "requirement `#{string}`"
+      end
+
+      unless Version.valid?(version)
+        raise ArgumentError, "Malformed version `#{version}` for " \
+          "requirement `#{string}`"
+      end
+    end
+
+    # @return [Bool] Whether a given candidate versions is acceptable according
+    #         to the optimistic operator (`~>`) given the reference version.
+    #
+    def bumped_reference_version
+      main_version = reference_version.scan(/[^-+]+/).first
+      components = main_version.split(".")
+      index = components.count - 2
+      Version.lenient_new(reference_version).bump(index)
     end
 
     #-------------------------------------------------------------------------#
 
   end
 
-  class RequirementList
-
-    attr_reader :requirements
-
-    def initialize(requirements = [])
-      @requirements = requirements
-    end
-
-    def add_requirement(requirement)
-      requirements << requirement
-      requirements.uniq!
-    end
-
-    def satisfied_by?(candidate_version)
-      requirements.all? { |requirement| requirement.satisfied_by?(candidate_version) }
-    end
-
-  end
 end
