@@ -1,9 +1,7 @@
 AllCops:
   Include:
     - Rakefile
-  Exclude:
-    - lib/cocoapods-core/vendor/**
-    - spec/fixtures/**
+    - version_kit.gemspec
 
 inherit_from: rubocop-todo.yml
 
