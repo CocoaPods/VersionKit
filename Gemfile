@@ -9,5 +9,8 @@ group :development do
   gem 'mocha-on-bacon'
   gem 'prettybacon'
   gem 'rubocop'
+
+  # Ruby 1.8.7 fixes
+  gem "mime-types", "< 2.0"
 end
 
