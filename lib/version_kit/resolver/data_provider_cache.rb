@@ -1,11 +1,9 @@
 module VersionKit
   class Resolver
-
     # As requests to the data provider are idem potent this class caches them
     # freeing clients from this logic.
     #
     module DataProviderCache
-
       attr_reader :data_provider
 
       def initialize(data_proivder)
@@ -37,7 +35,6 @@ module VersionKit
       end
 
       #-----------------------------------------------------------------------#
-
     end
   end
 end

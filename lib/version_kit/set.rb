@@ -1,9 +1,7 @@
 module VersionKit
-
   #
   #
   class Set
-
     # @return [String] the name of the Pod.
     #
     attr_reader :name
@@ -23,6 +21,5 @@ module VersionKit
       @name = name
       @versions = Array(versions)
     end
-
   end
 end

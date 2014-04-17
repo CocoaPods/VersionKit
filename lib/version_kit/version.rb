@@ -1,12 +1,10 @@
 module VersionKit
-
   # This class handles version strings according to the Semantic Versioning
   # Specification.
   #
   # Currently based on Semantic Versioning 2.0.0.
   #
   class Version
-
     include Comparable
 
     # @return [Array<String, Fixnum>]
@@ -49,8 +47,8 @@ module VersionKit
 
     def self.normalize(version)
       version = version.strip.to_s
-      version << ".0" if version  =~ /\A[0-9]+\Z/
-      version << ".0" if version  =~ /\A[0-9]+\.[0-9]+\Z/
+      version << '.0' if version  =~ /\A[0-9]+\Z/
+      version << '.0' if version  =~ /\A[0-9]+\.[0-9]+\Z/
       version
     end
 
@@ -90,7 +88,7 @@ module VersionKit
     # @return [String] a string representation suitable for debugging.
     #
     def inspect
-      "<#{self.class} #{to_s}>"
+      "<#{self.class} #{self}>"
     end
 
     def ==(other)
@@ -255,7 +253,7 @@ module VersionKit
         if identifier.is_a?(Fixnum)
           new_identifier = identifier.succ
         else
-          buffer = ""
+          buffer = ''
           did_bump = false
           identifier.scan(/[0-9]+|[a-z]+/i).map do |segment|
             if /^\d+$/ =~ segment
@@ -318,7 +316,7 @@ module VersionKit
     #
     def split_identifiers(version_part)
       if version_part
-        version_part.split(".").map do |identifier|
+        version_part.split('.').map do |identifier|
           if identifier =~ /\A[0-9]+\Z/
             identifier.to_i
           else
@@ -345,20 +343,19 @@ module VersionKit
     def version_to_string(main_version,
                           pre_release_version = nil,
                           build_metadata = nil)
-      result = main_version.join(".")
+      result = main_version.join('.')
 
       if pre_release_version && pre_release_version.count > 0
-        result << "-" << pre_release_version.join(".")
+        result << '-' << pre_release_version.join('.')
       end
 
       if build_metadata && build_metadata.count > 0
-        result << "+" << build_metadata.join(".")
+        result << '+' << build_metadata.join('.')
       end
 
       result
     end
 
     #-------------------------------------------------------------------------#
-
   end
 end

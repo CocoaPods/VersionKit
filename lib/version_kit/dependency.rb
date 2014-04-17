@@ -1,9 +1,7 @@
 module VersionKit
-
   #
   #
   class Dependency
-
     # @return [String] The name
     #
     attr_accessor :name
@@ -24,6 +22,5 @@ module VersionKit
     def satisfied_by?(candidate_version)
       requirement_list.satisfied_by?(version)
     end
-
   end
 end

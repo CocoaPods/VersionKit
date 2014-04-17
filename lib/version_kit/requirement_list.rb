@@ -1,9 +1,7 @@
 module VersionKit
-
   #
   #
   class RequirementList
-
     # @return [Array<Requirement>]
     #
     attr_reader :requirements
@@ -44,7 +42,7 @@ module VersionKit
     #         initialization.
     #
     def to_s
-      requirements.map(&:to_s).join(", ")
+      requirements.map(&:to_s).join(', ')
     end
 
     # @return [Fixnum] The hash of the instance.
@@ -75,6 +73,5 @@ module VersionKit
     end
 
     #-------------------------------------------------------------------------#
-
   end
 end

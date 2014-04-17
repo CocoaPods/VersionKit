@@ -1,12 +1,10 @@
 
 module VersionKit
   class Resolver
-
     #
     #
     #
     class SetDependencyTracker
-
       attr_accessor :name
       attr_accessor :versions
       attr_accessor :dependencies_by_requirer_name
@@ -34,7 +32,7 @@ module VersionKit
         message = "Unable to satisfy the following requirements:\n"
         dependencies_by_requirer_name.each do |name, dependencies|
           dependencies.each do |dep|
-            message << "- `#{dep.to_s}` required by `#{name}`"
+            message << "- `#{dep}` required by `#{name}`"
           end
         end
       end
@@ -43,14 +41,12 @@ module VersionKit
 
       #-----------------------------------------------------------------------#
 
-
       def store_dependency(dependency, dependent_name)
         dependencies_by_requirer_name[dependent_name] ||= []
         dependencies_by_requirer_name[dependent_name] << dependency
       end
 
       #-----------------------------------------------------------------------#
-
     end
   end
 end

@@ -1,10 +1,8 @@
 module VersionKit
-
   # Describes a constraint on the acceptable elements of a list of versions.
   # The only relevant method for this class is the `#satisfied_by?` method.
   #
   class Requirement
-
     # @return [String] The operator of the constraint.
     #
     attr_reader :operator
@@ -16,7 +14,7 @@ module VersionKit
     # @return [Hash {String=>Lambda}] The operators supported by this class
     #         associated to the lambda used to evaluate them.
     #
-    OPERATORS = ["=", "!=", ">", "<", ">=", "<=", "~>"]
+    OPERATORS = ['=', '!=', '>', '<', '>=', '<=', '~>']
 
     # @param  [String] string The string representation of the requirement.
     #
@@ -41,13 +39,13 @@ module VersionKit
       reference = @reference
 
       case operator
-      when "="  then candidate == reference
-      when "!=" then candidate != reference
-      when ">"  then candidate >  reference
-      when "<"  then candidate <  reference
-      when ">=" then candidate >= reference
-      when "<=" then candidate <= reference
-      when "~>"
+      when '='  then candidate == reference
+      when '!=' then candidate != reference
+      when '>'  then candidate >  reference
+      when '<'  then candidate <  reference
+      when '>=' then candidate >= reference
+      when '<=' then candidate <= reference
+      when '~>'
         candidate >= reference && candidate < bumped_reference_version
       end
     end
@@ -94,9 +92,9 @@ module VersionKit
     # @return [Array<String, String>]
     #
     def parse_string(string)
-      splitted = string.to_s.strip.split(" ")
+      splitted = string.to_s.strip.split(' ')
       if splitted.count == 1
-        operator = "="
+        operator = '='
         version = splitted[0]
       else
         operator = splitted[0]
@@ -132,13 +130,11 @@ module VersionKit
     #
     def bumped_reference_version
       main_version = reference_version.scan(/[^-+]+/).first
-      components = main_version.split(".")
+      components = main_version.split('.')
       index = components.count - 2
       Version.lenient_new(reference_version).bump(index)
     end
 
     #-------------------------------------------------------------------------#
-
   end
-
 end
