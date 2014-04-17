@@ -8,7 +8,6 @@ group :development do
   gem 'mocha', '~> 0.11.4'
   gem 'mocha-on-bacon'
   gem 'prettybacon'
-  gem 'rake'
   gem 'rubocop'
 end
 
