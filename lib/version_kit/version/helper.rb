@@ -48,11 +48,13 @@ module VersionKit
       def self.next_pre_release(version)
         version = coherce_version(version)
         return nil unless version.pre_release_component
-        original = version.pre_release_component.join('.')
-        index  = original.index(/\d/)
-        if index
-          new = original[0...index] + original.scan(/\d/).first.succ
-          string = "#{version.number_component.join('.')}-#{new}"
+        new = []
+        version.pre_release_component.each do |element|
+          element = element.succ if element.is_a?(Fixnum)
+          new << element
+        end
+        if version.pre_release_component != new
+          string = "#{version.number_component.join('.')}-#{new.join('.')}"
           Version.new(string)
         end
       end
@@ -81,7 +83,25 @@ module VersionKit
         next_versions(version).include?(candidate)
       end
 
-      # @group Private Helpers
+      # @return [Version] The version stripped of any pre-release or build
+      #         metadata.
+      #
+      def self.release_version(version)
+        version = coherce_version(version)
+        Version.new(version.number_component.join('.'))
+      end
+
+      # @return [String] The optimistic requirement (`~>`) which, according to
+      #         SemVer, preserves backwards compatibility.
+      #
+      def self.optimistic_requirement(version)
+        version = coherce_version(version)
+        if version.major_version == 0
+          "~> #{version.number_component[0..2].join('.')}"
+        else
+          "~> #{version.number_component[0..1].join('.')}"
+        end
+      end
 
       # @param  [Version, #to_s] version
       # @return [Version]

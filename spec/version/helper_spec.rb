@@ -55,8 +55,8 @@ module VersionKit
         @sut.next_pre_release('1.2.3').should.be.nil
       end
 
-      it 'returns nil if the pre-release components are only letters' do
-        @sut.next_pre_release('1.2.3-alpha').should.be.nil
+      it 'returns nil if no numeric pre-release components are present' do
+        @sut.next_pre_release('1.2.3-rc1').should.be.nil
       end
 
       it 'handles a single numeric pre-release component' do
@@ -65,10 +65,6 @@ module VersionKit
 
       it 'handles multiple pre-release components' do
         @sut.next_pre_release('1.2.3-rc.1').should == '1.2.3-rc.2'
-      end
-
-      it 'handles a pre-release component terminating in a number' do
-        @sut.next_pre_release('1.2.3-rc1').should == '1.2.3-rc2'
       end
     end
 
@@ -86,6 +82,21 @@ module VersionKit
 
       it 'rejects a version which is not a valid next one' do
         @sut.valid_next_version?('1.2.3-rc.1', '1.3.3').should.be.false
+      end
+    end
+
+    describe 'release_version' do
+      it 'returns the release version' do
+        @sut.release_version('1.9.4').should == '1.9.4'
+        @sut.release_version('1.9.4-rc0').should == '1.9.4'
+      end
+    end
+
+    describe 'optimistic_requirement' do
+      it 'returns the release version' do
+        @sut.optimistic_requirement('1.9.4').should == '~> 1.9'
+        @sut.optimistic_requirement('0.9.4').should == '~> 0.9.4'
+        @sut.optimistic_requirement('0.9.4-rc0').should == '~> 0.9.4'
       end
     end
   end
