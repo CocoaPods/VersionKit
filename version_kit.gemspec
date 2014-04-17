@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'std_ver/gem_metadata'
+require 'version_kit/gem_metadata'
 
 Gem::Specification.new do |spec|
-  spec.name          = "std_ver"
-  spec.version       = StdVer::VERSION
+  spec.name          = "version_kit"
+  spec.version       = VersionKit::VERSION
   spec.authors       = ["TODO: Write your name"]
   spec.email         = ["TODO: Write your email address"]
   spec.description   = %q{TODO: Write a gem description}

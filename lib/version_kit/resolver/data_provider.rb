@@ -1,4 +1,4 @@
-module StdVer
+module VersionKit
   class Resolver
 
     # Describes a constraint on the acceptable elements of a list of versions.

@@ -1,4 +1,4 @@
-module StdVer
+module VersionKit
   class Resolver
 
     # As requests to the data provider are idem potent this class caches them

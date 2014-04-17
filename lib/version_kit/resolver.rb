@@ -1,4 +1,4 @@
-module StdVer
+module VersionKit
 
   # Features
   #

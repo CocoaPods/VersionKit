@@ -1,4 +1,4 @@
-module StdVer
+module VersionKit
 
   # Describes a constraint on the acceptable elements of a list of versions.
   # The only relevant method for this class is the `#satisfied_by?` method.

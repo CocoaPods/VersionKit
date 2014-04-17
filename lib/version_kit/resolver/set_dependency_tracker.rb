@@ -1,5 +1,5 @@
 
-module StdVer
+module VersionKit
   class Resolver
 
     #

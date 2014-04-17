@@ -1,6 +1,6 @@
 require File.expand_path('../spec_helper', __FILE__)
 
-module StdVer
+module VersionKit
   describe Version do
 
     #-------------------------------------------------------------------------#
@@ -98,7 +98,7 @@ module StdVer
       end
 
       it "returns a string suitable for debugging" do
-        @sut.inspect.should == '<StdVer::Version 1.2.3>'
+        @sut.inspect.should == '<VersionKit::Version 1.2.3>'
       end
 
       it "returns whether it is equal to another version" do

@@ -1,4 +1,4 @@
-module StdVer
+module VersionKit
 
   # This class handles version strings according to the Semantic Versioning
   # Specification.

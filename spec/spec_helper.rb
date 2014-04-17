@@ -27,5 +27,5 @@ require 'bacon'
 require 'mocha-on-bacon'
 require 'pretty_bacon'
 
-require 'std_ver'
+require 'version_kit'
 
