@@ -15,7 +15,7 @@ module VersionKit
         end
 
         version = coherce_version(version)
-        components = version.main_version[0..index]
+        components = version.number_component[0..index]
         components[index] = components[index].succ
         Version.lenient_new(components.join('.'))
       end
@@ -47,12 +47,12 @@ module VersionKit
       #
       def self.next_pre_release(version)
         version = coherce_version(version)
-        return nil unless version.pre_release_version
-        original = version.pre_release_version.join('.')
+        return nil unless version.pre_release_component
+        original = version.pre_release_component.join('.')
         index  = original.index(/\d/)
         if index
           new = original[0...index] + original.scan(/\d/).first.succ
-          string = "#{version.main_version.join('.')}-#{new}"
+          string = "#{version.number_component.join('.')}-#{new}"
           Version.new(string)
         end
       end

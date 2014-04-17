@@ -129,8 +129,8 @@ module VersionKit
     #         to the optimistic operator (`~>`) given the reference version.
     #
     def bumped_reference_version
-      main_version = reference_version.scan(/[^-+]+/).first
-      components = main_version.split('.')
+      number_component = reference_version.scan(/[^-+]+/).first
+      components = number_component.split('.')
       index = components.count - 2
       Version::Bumper.bump(reference_version, index)
     end

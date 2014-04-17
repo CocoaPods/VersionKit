@@ -17,16 +17,16 @@ module VersionKit
         @sut = Version.new('1.2.0-alpha1.0+20130313144700')
       end
 
-      it 'returns the major, minor and patch identifiers' do
-        @sut.main_version.should == [1, 2, 0]
+      it 'returns the major, minor and patch version' do
+        @sut.number_component.should == [1, 2, 0]
       end
 
       it 'returns the pre-release identifiers' do
-        @sut.pre_release_version.should == ['alpha1', 0]
+        @sut.pre_release_component.should == ['alpha1', 0]
       end
 
       it 'returns the build identifiers' do
-        @sut.build_metadata.should == [20_130_313_144_700]
+        @sut.build_component.should == [20_130_313_144_700]
       end
 
     end
@@ -41,7 +41,7 @@ module VersionKit
           Version.valid?('1.20.145').should.be.true
         end
 
-        it 'accepts pre-release versions' do
+        it 'accepts Pre-release components' do
           Version.valid?('1.0.0-alpha').should.be.true
           Version.valid?('1.0.0-alpha.1').should.be.true
           Version.valid?('1.0.0-0.3.7').should.be.true
@@ -49,14 +49,14 @@ module VersionKit
           Version.valid?('1.0.0-rc1').should.be.true
         end
 
-        it 'accepts versions including build metadata' do
+        it 'accepts versions including Build component' do
           Version.valid?('1.0.0-alpha+001').should.be.true
           Version.valid?('1.0.0+20130313144700').should.be.true
           Version.valid?('1.0.0-beta+exp.sha.5114f85').should.be.true
           Version.valid?('1.2.3+0000.build').should.be.true
         end
 
-        it 'rejects non numerical characters in the main version' do
+        it 'rejects non numerical characters in the Number component' do
           Version.valid?('v0.0.1').should.be.false
           Version.valid?('0.0.1alpha').should.be.false
           Version.valid?('0.0 .1').should.be.false
@@ -126,7 +126,7 @@ module VersionKit
           (@sut <=> 'String').should.be.nil
         end
 
-        it 'always compares Major, minor, and patch versions numerically' do
+        it 'always compares major, minor, and patch versions numerically' do
           v1 = Version.new('1.0.0')
           v2 = Version.new('2.0.0')
           v3 = Version.new('2.1.0')
@@ -136,7 +136,7 @@ module VersionKit
           (v3 < v4).should.be.true
         end
 
-        it 'assigns lower precedence to pre-release versions' do
+        it 'assigns lower precedence to Pre-release components' do
           v1 = Version.new('1.0.0-alpha')
           v2 = Version.new('1.0.0')
           (v1 < v2).should.be.true
@@ -183,14 +183,14 @@ module VersionKit
         version.should.not.be.pre_release
       end
 
-      it 'identifies pre-release versions' do
+      it 'identifies Pre-release components' do
         version = Version.new('1.0.0-x.7.z.92')
         version.should.be.pre_release
       end
 
-      it 'returns the major identifier' do
-        Version.new('1.9.0').major.should == 1
-        Version.new('1.0.0-alpha').major.should == 1
+      it 'returns the major version' do
+        Version.new('1.9.0').major_version.should == 1
+        Version.new('1.0.0-alpha').major_version.should == 1
       end
 
       it 'returns the minor identifier' do
@@ -214,49 +214,5 @@ module VersionKit
         Version.new('0.9.4-rc0').optimistic_recommendation.should == '~> 0.9.4'
       end
     end
-
-    #-------------------------------------------------------------------------#
-
-    describe 'Private helpers' do
-
-      before do
-        @sut = Version.new('1.2.3')
-      end
-
-      describe '#segments_from_string' do
-        it 'properly converts numeric segments' do
-          @sut.send(:segments_from_string, '1.2.3').should == [1, 2, 3]
-        end
-
-        it 'handles pre-release segments' do
-          @sut.send(:segments_from_string, '1.2.3-rc.0').should ==
-            [1, 2, 3, 'rc', 0]
-        end
-      end
-
-      describe '#version_to_string' do
-        it 'converts the segments of a release version' do
-          @sut.send(:version_to_string, [1, 2, 3]).should == '1.2.3'
-        end
-
-        it 'includes pre-release identifiers' do
-          @sut.send(:version_to_string, [1, 2, 3], %w(rc 0)).should ==
-            '1.2.3-rc.0'
-          @sut.send(:version_to_string, [1, 2, 3], ['alpha']).should ==
-            '1.2.3-alpha'
-        end
-
-        it 'includes build identifiers' do
-          @sut.send(:version_to_string, [1, 2, 3], %w(rc 0), [2012]).should ==
-            '1.2.3-rc.0+2012'
-          @sut.send(:version_to_string, [1, 2, 3], [], [2012]).should ==
-            '1.2.3+2012'
-        end
-      end
-
-    end
-
-    #-------------------------------------------------------------------------#
-
   end
 end

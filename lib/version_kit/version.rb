@@ -12,28 +12,49 @@ module VersionKit
   #
   # - version: a string representing a specific release of a software.
   # - component: a version can have 3 components the number (1.2.3), the
-  #   pre-release metadata (rc.1), and the build metadata (2014.01.01).
+  #   pre-release metadata (rc.1), and the Build component (2014.01.01).
   # - element: each component in turn is composed by multiple elements
   #   separated by a dot (like 1, 2, or 01).
   # - bumping: the act of increasing by a single unit one element of the
   #   version.
   #
   class Version
+    # @return [RegEx] The regular expression to use to validate a string
+    #         representation of a version.
+    #
+    # The components have the following characteristics:
+    #
+    # - Number component: Three dot-separated numeric elements.
+    # - Pre-release component: Hyphen, followed by any combination of digits,
+    #   letters, or hyphens separated by periods.
+    # - Build component: Plus sign, followed by any combination of digits,
+    #   letters, or hyphens separated by periods.
+    #
+    VERSION_PATTERN = /\A
+      [0-9]+\.[0-9]+\.[0-9]+           (?# Number component)
+      ([-][0-9a-z-]+(\.[0-9a-z-]+)*)?  (?# Pre-release component)
+      ([+][0-9a-z-]+(\.[0-9a-z-]+)*)?  (?# Build component)
+    \Z/xi
+
     include Comparable
 
-    # @return [Array<String, Fixnum>]
+    # @return [Array<Fixnum>] The elements of the number component of the
+    #         version.
     #
-    attr_reader :main_version
+    attr_reader :number_component
 
-    # @return [Array<String, Fixnum>]
+    # @return [Array<String, Fixnum>] The elements of the pre-release component
+    #         of the version.
     #
-    attr_reader :pre_release_version
+    attr_reader :pre_release_component
 
-    # @return [Array<String, Fixnum>]
+    # @return [Array<String, Fixnum>] The elements of the build component of
+    #         the version.
     #
-    attr_reader :build_metadata
+    attr_reader :build_component
 
-    # @param [String, Version, #to_s] version @see version
+    # @param  [#to_s] version
+    #         Any representation of a version convertible to a string.
     #
     def initialize(version)
       version = version.to_s.strip
@@ -43,9 +64,9 @@ module VersionKit
       end
 
       parts = version.scan(/[^-+]+/)
-      @main_version = split_identifiers(parts[0])
-      @pre_release_version = split_identifiers(parts[1])
-      @build_metadata = split_identifiers(parts[2])
+      @number_component = split_component(parts[0])
+      @pre_release_component = split_component(parts[1])
+      @build_component = split_component(parts[2])
     end
 
     # @!group Class methods
@@ -57,25 +78,14 @@ module VersionKit
       new(normalize(version))
     end
 
+    # @return [String]
+    #
     def self.normalize(version)
       version = version.strip.to_s
       version << '.0' if version  =~ /\A[0-9]+\Z/
       version << '.0' if version  =~ /\A[0-9]+\.[0-9]+\Z/
       version
     end
-
-    # @return [RegEx] The regular expression to use to validate a string
-    #         representation of a version.
-    #
-    # rubocop:disable LineLength,
-    #
-    VERSION_PATTERN = /\A
-     [0-9]+\.[0-9]+\.[0-9]+           (?# Main version: Three dot-separated numeric identifiers. )
-     ([-][0-9a-z-]+(\.[0-9a-z-]+)*)?  (?# Pre-release Version: Hyphen, followed by any combination of digits, letters, or hyphens separated by periods. )
-     ([+][0-9a-z-]+(\.[0-9a-z-]+)*)?  (?# Build Metadata: Plus sign, followed by any combination of digits, letters, or hyphens separated by periods. )
-    \Z/xi
-    #
-    # rubocop:enable LineLength,
 
     # @return [Bool] Whether a string representation of a version is can be
     #         accepted by this class. This comparison is much more lenient than
@@ -94,7 +104,17 @@ module VersionKit
     # @return [String] The string representation of the version.
     #
     def to_s
-      version_to_string(main_version, pre_release_version, build_metadata)
+      result = number_component.join('.')
+
+      if pre_release_component.count > 0
+        result << '-' << pre_release_component.join('.')
+      end
+
+      if build_component.count > 0
+        result << '+' << build_component.join('.')
+      end
+
+      result
     end
 
     # @return [String] a string representation suitable for debugging.
@@ -103,6 +123,8 @@ module VersionKit
       "<#{self.class} #{self}>"
     end
 
+    # @return [Bool]
+    #
     def ==(other)
       to_s == other.to_s
     end
@@ -137,8 +159,8 @@ module VersionKit
     def <=>(other)
       return nil unless other.class == self.class
 
-      main_version.each_with_index do |identifier, index|
-        comparison = identifier <=> other.main_version[index]
+      number_component.each_with_index do |element, index|
+        comparison = element <=> other.number_component[index]
         return comparison if comparison != 0
       end
 
@@ -151,11 +173,11 @@ module VersionKit
       end
 
       pre_release_identifiers_count =
-        [pre_release_version.count, other.pre_release_version.count].min
+        [pre_release_component.count, other.pre_release_component.count].min
 
       pre_release_identifiers_count.times do |index|
-        self_identifier = pre_release_version[index]
-        othr_identifier = other.pre_release_version[index]
+        self_identifier = pre_release_component[index]
+        othr_identifier = other.pre_release_component[index]
 
         if !self_identifier.is_a?(String) && othr_identifier.is_a?(String)
           return -1
@@ -167,9 +189,9 @@ module VersionKit
         end
       end
 
-      if pre_release_version.count < other.pre_release_version.count
+      if pre_release_component.count < other.pre_release_component.count
         return -1
-      elsif pre_release_version.count > other.pre_release_version.count
+      elsif pre_release_component.count > other.pre_release_component.count
         return 1
       end
 
@@ -181,100 +203,74 @@ module VersionKit
     # @!group Semantic Versioning
     #-------------------------------------------------------------------------#
 
-    # @return [Fixnum] The SemVer major identifier.
+    # @return [Fixnum] The SemVer major version.
     #
-    def major
-      main_version[0]
+    def major_version
+      number_component[0]
     end
 
-    # @return [Fixnum] The SemVer minor identifier.
+    # @return [Fixnum] The SemVer minor version.
     #
     def minor
-      main_version[1]
+      number_component[1]
     end
 
-    # @return [Fixnum] The SemVer patch identifier.
+    # @return [Fixnum] The SemVer patch version.
     #
     def patch
-      main_version[2]
+      number_component[2]
     end
 
     # @return [Boolean] Indicates whether or not the version is a pre-release
     #         version.
     #
-    # @note   Pre-release version contain a hyphen and/or a letter.
-    #
     def pre_release?
-      !pre_release_version.nil?
+      !pre_release_component.empty?
     end
 
-    # @return [Version] The version stripped of any pre-release segment.
+    # @return [Version] The version stripped of any pre-release or build
+    #         metadata.
     #
     def release_version
-      release_string = version_to_string(main_version)
-      self.class.new(release_string)
+      self.class.new(number_component.join('.'))
     end
 
-    # @return [String] The optimistic requirement (`~>`) expected to preserve
-    #         backwards compatibility.
+    # @return [String] The version suggested for the optimistic requirement
+    # (`~>`) which, according to SemVer, preserves backwards compatibility.
     #
     def optimistic_recommendation
-      if major == 0
-        "~> #{version_to_string(main_version[0..2])}"
+      if major_version == 0
+        "~> #{number_component[0..2].join('.')}"
       else
-        "~> #{version_to_string(main_version[0..1])}"
+        "~> #{number_component[0..1].join('.')}"
       end
     end
+
+    private
 
     # @!group Private Helpers
     #-------------------------------------------------------------------------#
 
-    # @return [Array<String,Fixnum>]
+    # Splits a component to the elements separated by a dot in an array
+    # converting the ones composed only by digits to a number.
     #
-    def split_identifiers(version_part)
-      if version_part
-        version_part.split('.').map do |identifier|
-          if identifier =~ /\A[0-9]+\Z/
-            identifier.to_i
+    # @param  [String] component
+    #         The component to split in elements.
+    #
+    # @return [Array<String,Fixnum>] The list of the elements of the component.
+    #
+    def split_component(component)
+      if component
+        component.split('.').map do |element|
+          if element =~ /\A[0-9]+\Z/
+            element.to_i
           else
-            identifier
+            element
           end
         end
+      else
+        []
       end
     end
-
-    # @return [Array<String,Fixnum>]
-    #
-    def segments_from_string(string)
-      string.scan(/[0-9]+|[a-z]+/i).map do |segment|
-        if /^\d+$/ =~ segment
-          segment.to_i
-        else
-          segment
-        end
-      end
-    end
-
-    # @param  [Array<Fixnum>] main
-    # @param  [Array<Fixnum,String>] pre_release
-    # @param  [Array<Fixnum,String>] build_metadata
-    #
-    # @return [String]
-    #
-    def version_to_string(main, pre_release = nil, build_metadata = nil)
-      result = main.join('.')
-
-      if pre_release && pre_release.count > 0
-        result << '-' << pre_release.join('.')
-      end
-
-      if build_metadata && build_metadata.count > 0
-        result << '+' << build_metadata.join('.')
-      end
-
-      result
-    end
-
-    #-------------------------------------------------------------------------#
   end
 end
