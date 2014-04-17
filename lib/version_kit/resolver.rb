@@ -32,7 +32,7 @@ module VersionKit
     def resolve
       dependencies_by_group.each do |group_name, dependencies|
         delegate.did_start_resolution_for_group(name)
-        deps = find_dependency_specs(group_name, dependencies, group, depth = 0)
+        deps = find_dependency_specs(group_name, dependencies, group, 0)
         delegate.did_end_resolution_for_group
       end
     end

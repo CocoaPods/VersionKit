@@ -56,14 +56,14 @@ module VersionKit
           Version.valid?('1.2.3+0000.build').should.be.true
         end
 
-        it "doesn't' accepts versions including non numerical characters in the main version" do
+        it 'rejects non numerical characters in the main version' do
           Version.valid?('v0.0.1').should.be.false
           Version.valid?('0.0.1alpha').should.be.false
           Version.valid?('0.0 .1').should.be.false
           Version.valid?('0.1+.1').should.be.false
         end
 
-        it "doesn't' accepts versions with a number of main version identifiers different than 3" do
+        it 'rejects versions an identifier count different than 3' do
           Version.valid?('1').should.be.false
           Version.valid?('0.1').should.be.false
           Version.valid?('0.1.0.3').should.be.false
@@ -105,18 +105,18 @@ module VersionKit
       end
 
       describe 'eql?' do
-        it 'is equal to another initialized with an equal string representation' do
+        it 'returns true for if the version are the same' do
           other = Version.new('1.2.3')
           @sut.should.eql(other)
         end
 
-        it 'is not equal to another version initialized with a different string representation' do
+        it 'returns false if the version are not the same' do
           other = Version.new('1.2.4')
           @sut.should.not.eql(other)
         end
       end
 
-      it 'returns the hash computed as the hash of the string representation' do
+      it 'returns the hash' do
         @sut.hash.should == '1.2.3'.hash
         @sut.hash.should == Version.new('1.2.3').hash
       end
@@ -236,11 +236,16 @@ module VersionKit
       end
 
       it 'returns the next pre-release version' do
-        Version.new('1.2.3-rc.1').next_pre_release.to_s.should == '1.2.3-rc.2'
-        Version.new('1.2.3-rc1').next_pre_release.to_s.should == '1.2.3-rc2'
-        Version.new('1.2.3-rc1ver').next_pre_release.to_s.should == '1.2.3-rc2ver'
-        Version.new('1.2.3-rc1ver2').next_pre_release.to_s.should == '1.2.3-rc2ver2'
-        Version.new('1.2.3-rc.1.alpha').next_pre_release.to_s.should == '1.2.3-rc.2'
+        Version.new('1.2.3-rc.1').next_pre_release.to_s.should ==
+          '1.2.3-rc.2'
+        Version.new('1.2.3-rc1').next_pre_release.to_s.should ==
+          '1.2.3-rc2'
+        Version.new('1.2.3-rc1ver').next_pre_release.to_s.should ==
+          '1.2.3-rc2ver'
+        Version.new('1.2.3-rc1ver2').next_pre_release.to_s.should ==
+          '1.2.3-rc2ver2'
+        Version.new('1.2.3-rc.1.alpha').next_pre_release.to_s.should ==
+          '1.2.3-rc.2'
         Version.new('1.2.3-alpha').next_pre_release.should.be.nil
         Version.new('1.2.3').next_pre_release.should.be.nil
       end
@@ -271,7 +276,8 @@ module VersionKit
         end
 
         it 'handles pre-release segments' do
-          @sut.send(:segments_from_string, '1.2.3-rc.0').should == [1, 2, 3, 'rc', 0]
+          @sut.send(:segments_from_string, '1.2.3-rc.0').should ==
+            [1, 2, 3, 'rc', 0]
         end
       end
 
@@ -281,13 +287,17 @@ module VersionKit
         end
 
         it 'includes pre-release identifiers' do
-          @sut.send(:version_to_string, [1, 2, 3], %w(rc 0)).should == '1.2.3-rc.0'
-          @sut.send(:version_to_string, [1, 2, 3], ['alpha']).should == '1.2.3-alpha'
+          @sut.send(:version_to_string, [1, 2, 3], %w(rc 0)).should ==
+            '1.2.3-rc.0'
+          @sut.send(:version_to_string, [1, 2, 3], ['alpha']).should ==
+            '1.2.3-alpha'
         end
 
         it 'includes build identifiers' do
-          @sut.send(:version_to_string, [1, 2, 3], %w(rc 0), [2012]).should == '1.2.3-rc.0+2012'
-          @sut.send(:version_to_string, [1, 2, 3], [], [2012]).should == '1.2.3+2012'
+          @sut.send(:version_to_string, [1, 2, 3], %w(rc 0), [2012]).should ==
+            '1.2.3-rc.0+2012'
+          @sut.send(:version_to_string, [1, 2, 3], [], [2012]).should ==
+            '1.2.3+2012'
         end
       end
 

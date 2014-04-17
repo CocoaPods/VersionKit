@@ -32,7 +32,7 @@ module VersionKit
     # @return [Bool] Whether a given version is accepted by the given
     #         requirement.
     #
-    # rubocop:disable MethodLength,
+    # rubocop:disable MethodLength, CyclomaticComplexity
     #
     def satisfied_by?(candidate_version)
       candidate = Version.lenient_new(candidate_version)
@@ -50,7 +50,7 @@ module VersionKit
       end
     end
     #
-    # rubocop:enable MethodLength,
+    # rubocop:enable MethodLength, CyclomaticComplexity
 
     public
 

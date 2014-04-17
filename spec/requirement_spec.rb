@@ -52,48 +52,48 @@ module VersionKit
       end
 
       describe '#satisfied_by?' do
-        it 'returns whether a candidate version is satisfied according to the `=` operator' do
+        it 'returns whether a version satisfies the `=` operator' do
           sut = Requirement.new('= 2.1.0')
           sut.should.be.satisfied_by?('2.1.0')
           sut.should.be.satisfied_by?('2.1')
           sut.should.be.not.satisfied_by?('2.2.0')
         end
 
-        it 'returns whether a candidate version is satisfied according to the `!=` operator' do
+        it 'returns whether a version satisfies the `!=` operator' do
           sut = Requirement.new('!= 2.1.0')
           sut.should.be.satisfied_by?('2.2.0')
           sut.should.be.not.satisfied_by?('2.1.0')
           sut.should.be.not.satisfied_by?('2.1')
         end
 
-        it 'returns whether a candidate version is satisfied according to the `>` operator' do
+        it 'returns whether a version satisfies the `>` operator' do
           sut = Requirement.new('> 2.1.0')
           sut.should.be.satisfied_by?('2.2')
           sut.should.not.be.satisfied_by?('2.1')
         end
 
-        it 'returns whether a candidate version is satisfied according to the `<` operator' do
+        it 'returns whether a version satisfies the `<` operator' do
           sut = Requirement.new('< 2.1.0')
           sut.should.be.satisfied_by?('2.0')
           sut.should.not.be.satisfied_by?('2.1')
           sut.should.not.be.satisfied_by?('2.2')
         end
 
-        it 'returns whether a candidate version is satisfied according to the `>=` operator' do
+        it 'returns whether a version satisfies the `>=` operator' do
           sut = Requirement.new('>= 2.1.0')
           sut.should.be.satisfied_by?('2.2')
           sut.should.be.satisfied_by?('2.1')
           sut.should.not.be.satisfied_by?('2.0')
         end
 
-        it 'returns whether a candidate version is satisfied according to the `<=` operator' do
+        it 'returns whether a version satisfies the `<=` operator' do
           sut = Requirement.new('<= 2.1.0')
           sut.should.be.satisfied_by?('2.0')
           sut.should.be.satisfied_by?('2.1')
           sut.should.not.be.satisfied_by?('2.2')
         end
 
-        it 'returns whether a candidate version is satisfied according to the `~>` operator' do
+        it 'returns whether a version satisfies the `~>` operator' do
           sut = Requirement.new('~> 2.1.0')
           sut.should.be.satisfied_by?('2.1')
           sut.should.be.satisfied_by?('2.1.0')

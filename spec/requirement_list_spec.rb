@@ -49,7 +49,7 @@ module VersionKit
       end
 
       describe '#satisfied_by' do
-        it 'returns if all the requirements are satisfied by a candidate version' do
+        it 'returns if all the requirements are satisfied by a version' do
           @sut = RequirementList.new
           @sut.add_requirement(Requirement.new('> 1.2'))
           @sut.add_requirement(Requirement.new('< 3.0'))
