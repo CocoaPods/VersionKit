@@ -1,4 +1,4 @@
-require 'version_kit/version/bumper'
+require 'version_kit/version/helper'
 
 module VersionKit
   # This class handles version strings according to the Semantic Versioning

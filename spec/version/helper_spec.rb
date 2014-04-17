@@ -1,9 +1,9 @@
 require File.expand_path('../../spec_helper', __FILE__)
 
 module VersionKit
-  describe Version::Bumper do
+  describe Version::Helper do
     before do
-      @sut = Version::Bumper
+      @sut = Version::Helper
     end
 
     describe 'bump' do

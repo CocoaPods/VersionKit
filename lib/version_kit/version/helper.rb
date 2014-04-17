@@ -2,7 +2,7 @@ module VersionKit
   class Version
     # Identifies the possible next versions from a given one.
     #
-    module Bumper
+    module Helper
       # Bumps the component at the given index
       # @param  [Version, #to_s] version
       # @param  [#to_i] component
