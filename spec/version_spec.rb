@@ -217,53 +217,6 @@ module VersionKit
 
     #-------------------------------------------------------------------------#
 
-    describe 'Next Versions' do
-
-      before do
-        @sut = Version.new('1.2.3-rc.1')
-      end
-
-      it 'returns the next major version' do
-        @sut.next_major.to_s.should == '2.0.0'
-      end
-
-      it 'returns the next minor version' do
-        @sut.next_minor.to_s.should == '1.3.0'
-      end
-
-      it 'returns the next patch version' do
-        @sut.next_patch.to_s.should == '1.2.4'
-      end
-
-      it 'returns the next pre-release version' do
-        Version.new('1.2.3-rc.1').next_pre_release.to_s.should ==
-          '1.2.3-rc.2'
-        Version.new('1.2.3-rc1').next_pre_release.to_s.should ==
-          '1.2.3-rc2'
-        Version.new('1.2.3-rc1ver').next_pre_release.to_s.should ==
-          '1.2.3-rc2ver'
-        Version.new('1.2.3-rc1ver2').next_pre_release.to_s.should ==
-          '1.2.3-rc2ver2'
-        Version.new('1.2.3-rc.1.alpha').next_pre_release.to_s.should ==
-          '1.2.3-rc.2'
-        Version.new('1.2.3-alpha').next_pre_release.should.be.nil
-        Version.new('1.2.3').next_pre_release.should.be.nil
-      end
-
-      it 'returns the next versions' do
-        versions = @sut.next_versions.map(&:to_s)
-        versions.should == ['2.0.0', '1.3.0', '1.2.4', '1.2.3-rc.2']
-      end
-
-      it 'returns whether a given version would be a valid next version' do
-        @sut.valid_next_version?('1.3.0').should.be.true
-        @sut.valid_next_version?('1.3.3').should.be.false
-      end
-
-    end
-
-    #-------------------------------------------------------------------------#
-
     describe 'Private helpers' do
 
       before do

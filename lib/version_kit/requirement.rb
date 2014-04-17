@@ -132,7 +132,7 @@ module VersionKit
       main_version = reference_version.scan(/[^-+]+/).first
       components = main_version.split('.')
       index = components.count - 2
-      Version.lenient_new(reference_version).bump(index)
+      Version::Bumper.bump(reference_version, index)
     end
 
     #-------------------------------------------------------------------------#

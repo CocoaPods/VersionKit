@@ -1,8 +1,22 @@
+require 'version_kit/version/bumper'
+
 module VersionKit
   # This class handles version strings according to the Semantic Versioning
   # Specification.
   #
   # Currently based on Semantic Versioning 2.0.0.
+  #
+  # Example version: 1.2.3-rc.1+2014.01.01
+  #
+  # Glossary:
+  #
+  # - version: a string representing a specific release of a software.
+  # - component: a version can have 3 components the number (1.2.3), the
+  #   pre-release metadata (rc.1), and the build metadata (2014.01.01).
+  # - element: each component in turn is composed by multiple elements
+  #   separated by a dot (like 1, 2, or 01).
+  # - bumping: the act of increasing by a single unit one element of the
+  #   version.
   #
   class Version
     include Comparable
@@ -212,101 +226,6 @@ module VersionKit
       end
     end
 
-    public
-
-    # @!group Next Versions
-    #-------------------------------------------------------------------------#
-
-    # @return [Version]
-    #
-    def next_major
-      new_main_version = [main_version[0].succ, 0, 0]
-      Version.new(version_to_string(new_main_version))
-    end
-
-    # @return [Version]
-    #
-    def next_minor
-      new_main_version = [main_version[0], main_version[1].succ, 0]
-      Version.new(version_to_string(new_main_version))
-    end
-
-    # @return [Version]
-    #
-    def next_patch
-      new_main_version =
-        [main_version[0], main_version[1], main_version[2].succ]
-      Version.new(version_to_string(new_main_version))
-    end
-
-    # @return [Version]
-    # @return [Nil]
-    #
-    def next_pre_release
-      return nil unless pre_release_version
-      new_pre_release_version = []
-
-      pre_release_version.each do |identifier|
-        new_identifier = nil
-        if identifier.is_a?(Fixnum)
-          new_identifier = identifier.succ
-        else
-          buffer = ''
-          did_bump = false
-          identifier.scan(/[0-9]+|[a-z]+/i).map do |segment|
-            if /^\d+$/ =~ segment
-              if did_bump
-                buffer << segment
-              else
-                buffer << (segment.to_i.succ).to_s
-                did_bump = true
-              end
-            else
-              buffer << segment
-            end
-          end
-          if did_bump
-            new_identifier = buffer
-          end
-        end
-
-        if new_identifier
-          new_pre_release_version << new_identifier
-          break
-        else
-          new_pre_release_version << identifier
-        end
-      end
-
-      return nil unless pre_release_version != new_pre_release_version
-      Version.new(version_to_string(main_version, new_pre_release_version))
-    end
-
-    # @return [Array<Version>]
-    #
-    def next_versions
-      @next_versions ||=
-        [next_major, next_minor, next_patch, next_pre_release].compact
-    end
-
-    # @return [Bool]
-    #
-    def valid_next_version?(version)
-      next_versions.map(&:to_s).include?(version.to_s)
-    end
-
-    def bump(component)
-      if component <= 0
-        next_major
-      elsif component == 1
-        next_minor
-      else
-        next_patch
-      end
-    end
-
-    private
-
     # @!group Private Helpers
     #-------------------------------------------------------------------------#
 
@@ -336,15 +255,17 @@ module VersionKit
       end
     end
 
+    # @param  [Array<Fixnum>] main
+    # @param  [Array<Fixnum,String>] pre_release
+    # @param  [Array<Fixnum,String>] build_metadata
+    #
     # @return [String]
     #
-    def version_to_string(main_version,
-                          pre_release_version = nil,
-                          build_metadata = nil)
-      result = main_version.join('.')
+    def version_to_string(main, pre_release = nil, build_metadata = nil)
+      result = main.join('.')
 
-      if pre_release_version && pre_release_version.count > 0
-        result << '-' << pre_release_version.join('.')
+      if pre_release && pre_release.count > 0
+        result << '-' << pre_release.join('.')
       end
 
       if build_metadata && build_metadata.count > 0
