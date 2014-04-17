@@ -36,10 +36,6 @@ LineLength:
 MethodLength:
   Max: 83
 
-# Offense count: 1
-UnlessElse:
-  Enabled: false
-
 # Offense count: 2
 UselessAccessModifier:
   Enabled: false

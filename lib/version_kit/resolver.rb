@@ -46,11 +46,11 @@ module VersionKit
       generate_all_possible_combinations
       possbile_combinations.each do |combination|
         try_activate_one_recursilvely
-        unless success
+        if success
+          result
+        else
           update_base
           restart
-        else
-          result
         end
       end
 
