@@ -1,12 +1,10 @@
 module VersionKit
-
   # Features
   #
   # - Supports multiple resolution groups with the limitation of only one
   #   version activated for a given library among them.
   #
   class Resolver
-
     #
     #
     attr_reader :data_provider
@@ -30,7 +28,6 @@ module VersionKit
       @iteration_counter    = 0
       @started_at           = Time.now
     end
-
 
     def resolve
       dependencies_by_group.each do |group_name, dependencies|
@@ -56,8 +53,6 @@ module VersionKit
           result
         end
       end
-
-
 
       # current = reqs.shift
       # existing = activated[current.name]
@@ -89,75 +84,69 @@ module VersionKit
       #     conflict = resolve_requirement(spec_group, current, reqs.dup, activated.dup, depth)
       #     conflicts << conflict if conflict
       #   end
-      end
-
-      delegate.validate_version_for_group(version, group)
     end
 
-    private
+    delegate.validate_version_for_group(version, group)
+  end
 
-    #-------------------------------------------------------------------------#
+  private
 
+  #-------------------------------------------------------------------------#
 
-    def activate_dep
-    end
+  def activate_dep
+  end
 
-    def activate_uniq_versions
-      uniq_dependencies.each do |dep|
-        sucess = activate_dep(dep)
-        unless sucess
-          raise "Unable to resolve"
-        end
+  def activate_uniq_versions
+    uniq_dependencies.each do |dep|
+      sucess = activate_dep(dep)
+      unless sucess
+        raise 'Unable to resolve'
       end
     end
+  end
 
-    # Sort dependencies so that the ones that are easiest to resolve are first.
-    # Easiest to resolve is defined by:
-    #   1) Is this gem already activated?
-    #   2) Do the version requirements include prereleased gems?
-    #   3) Sort by number of gems available in the source.
-    #
-    def sort_dependencies(deps)
-      deps
-    end
+  # Sort dependencies so that the ones that are easiest to resolve are first.
+  # Easiest to resolve is defined by:
+  #   1) Is this gem already activated?
+  #   2) Do the version requirements include prereleased gems?
+  #   3) Sort by number of gems available in the source.
+  #
+  def sort_dependencies(deps)
+    deps
+  end
 
-    private
+  private
 
-    #-------------------------------------------------------------------------#
+  #-------------------------------------------------------------------------#
 
-    #
-    #
-    attr_reader :started_at
+  #
+  #
+  attr_reader :started_at
 
-    #
-    #
-    attr_reader :iteration_rate
+  #
+  #
+  attr_reader :iteration_rate
 
-    #
-    #
-    attr_reader :iteration_counter
+  #
+  #
+  attr_reader :iteration_counter
 
+  # Indicates progress by writing a '.' every iteration_rate time which is
+  # approximately every second. iteration_rate is calculated in the first
+  # second of resolve running.
+  #
+  def indicate_progress
+    iteration_counter += 1
 
-    # Indicates progress by writing a '.' every iteration_rate time which is
-    # approximately every second. iteration_rate is calculated in the first
-    # second of resolve running.
-    #
-    def indicate_progress
-      iteration_counter += 1
-
-      if iteration_rate.nil?
-        if ((Time.now - started_at) % 3600).round >= 1
-          iteration_rate = iteration_counter
-        end
-      else
-        if ((iteration_counter % iteration_rate) == 0)
-          delegated.did_perform_progress
-        end
+    if iteration_rate.nil?
+      if ((Time.now - started_at) % 3600).round >= 1
+        iteration_rate = iteration_counter
+      end
+    else
+      if (iteration_counter % iteration_rate) == 0
+        delegated.did_perform_progress
       end
     end
-
-    #-------------------------------------------------------------------------#
-
   end
 end
 
@@ -165,21 +154,17 @@ end
 
 module Bundler
   class Resolver
-
     def resolve(reqs, activated, depth = 0)
       # If the requirements are empty, then we are in a success state. Aka, all
       # gem dependencies have been resolved.
       safe_throw :success, successify(activated) if reqs.empty?
 
-
       reqs = reqs.sort_by do |a|
-        [ activated[a.name] ? 0 : 1,
-          a.requirement.prerelease? ? 0 : 1,
-          @errors[a.name]   ? 0 : 1,
-          activated[a.name] ? 0 : @gems_size[a] ]
+        [activated[a.name] ? 0 : 1,
+         a.requirement.prerelease? ? 0 : 1,
+         @errors[a.name]   ? 0 : 1,
+         activated[a.name] ? 0 : @gems_size[a]]
       end
-
-
 
       activated = activated.dup
 
@@ -188,7 +173,7 @@ module Bundler
 
       $stderr.puts "#{' ' * depth}#{current}" if ENV['DEBUG_RESOLVER_TREE']
 
-      debug { "Attempting:\n  #{current}"}
+      debug { "Attempting:\n  #{current}" }
 
       # Check if the gem has already been activated, if it has, we will make sure
       # that the currently activated gem satisfies the requirement.
@@ -197,9 +182,9 @@ module Bundler
         if current.requirement.satisfied_by?(existing.version)
 
         else
-          debug { "    * [FAIL] Already activated" }
+          debug { '    * [FAIL] Already activated' }
           @errors[existing.name] = [existing, current]
-          debug { current.required_by.map {|d| "      * #{d.name} (#{d.requirement})" }.join("\n") }
+          debug { current.required_by.map { |d| "      * #{d.name} (#{d.requirement})" }.join("\n") }
           # debug { "    * All current conflicts:\n" + @errors.keys.map { |c| "      - #{c}" }.join("\n") }
           # Since the current requirement conflicts with an activated gem, we need
           # to backtrack to the current requirement's parent and try another version
@@ -240,9 +225,9 @@ module Bundler
             if base = @base[current.name] and !base.empty?
               version = base.first.version
               message = "You have requested:\n" \
-                    "  #{current.name} #{current.requirement}\n\n" \
-                    "The bundle currently has #{current.name} locked at #{version}.\n" \
-                    "Try running `bundle update #{current.name}`"
+                "  #{current.name} #{current.requirement}\n\n" \
+                "The bundle currently has #{current.name} locked at #{version}.\n" \
+                "Try running `bundle update #{current.name}`"
             elsif current.source
               name = current.name
               versions = @source_requirements[name][name].map { |s| s.version }
@@ -255,13 +240,13 @@ module Bundler
             else
               message = "Could not find gem '#{current}' "
               if @index.source_types.include?(Bundler::Source::Rubygems)
-                message << "in any of the gem sources listed in your Gemfile."
+                message << 'in any of the gem sources listed in your Gemfile.'
               else
-                message << "in the gems available on this machine."
+                message << 'in the gems available on this machine.'
               end
             end
             raise GemNotFound, message
-          # This is not a top-level Gemfile requirement
+            # This is not a top-level Gemfile requirement
           else
             @errors[current.name] = [nil, current]
           end
@@ -318,7 +303,7 @@ module Bundler
 
       # Now, we have to loop through all child dependencies and add them to our
       # array of requirements.
-      debug { "    Dependencies"}
+      debug { '    Dependencies' }
       dependencies.each do |dep|
         next if dep.type == :development
         debug { "    * #{dep.name} (#{dep.requirement})" }
@@ -368,19 +353,19 @@ module Bundler
     end
 
     def error_message
-      errors.inject("") do |o, (conflict, (origin, requirement))|
+      errors.reduce('') do |o, (conflict, (origin, requirement))|
 
         # origin is the SpecSet of specs from the Gemfile that is conflicted with
         if origin
 
-          o << %{Bundler could not find compatible versions for gem "#{origin.name}":\n}
+          o << %(Bundler could not find compatible versions for gem "#{origin.name}":\n)
           o << "  In Gemfile:\n"
 
           o << gem_message(requirement)
           o << gem_message(origin)
 
-        # origin is nil if the required gem and version cannot be found in any of
-        # the specified sources
+          # origin is nil if the required gem and version cannot be found in any of
+          # the specified sources
         else
 
           # if the gem cannot be found because of a version conflict between lockfile and gemfile,
@@ -398,7 +383,7 @@ module Bundler
             o << "Running `bundle update` will rebuild your snapshot from scratch, using only\n"
             o << "the gems in your Gemfile, which may resolve the conflict.\n"
 
-          # the rest of the time, the gem cannot be found because it does not exist in the known sources
+            # the rest of the time, the gem cannot be found because it does not exist in the known sources
           else
             if requirement.required_by.first
               o << "Could not find gem '#{clean_req(requirement)}', which is required by "
@@ -414,6 +399,5 @@ module Bundler
     end
 
     private
-
   end
 end
