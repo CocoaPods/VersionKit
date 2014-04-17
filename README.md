@@ -4,25 +4,13 @@
 [![Coverage Status](https://img.shields.io/coveralls/CocoaPods/VersionKit.svg)](https://coveralls.io/r/CocoaPods/VersionKit)
 [![Code Climate](https://img.shields.io/codeclimate/github/CocoaPods/VersionKit.svg)](https://codeclimate.com/github/CocoaPods/VersionKit)
 
-TODO: Write a gem description
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'VersionKit'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install VersionKit
+Provides support for SemVer versions and dependency resolution
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'version_kit'
+```
 
 ## Contributing
 
