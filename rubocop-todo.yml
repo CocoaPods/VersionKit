@@ -27,10 +27,6 @@ CyclomaticComplexity:
 Documentation:
   Enabled: false
 
-# Offense count: 1
-EmptyLinesAroundAccessModifier:
-  Enabled: false
-
 # Offense count: 75
 LineLength:
   Max: 107

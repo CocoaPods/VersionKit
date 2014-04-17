@@ -397,7 +397,5 @@ module Bundler
         o
       end
     end
-
-    private
   end
 end
