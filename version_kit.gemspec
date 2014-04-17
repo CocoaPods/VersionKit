@@ -6,11 +6,10 @@ require 'version_kit/gem_metadata'
 Gem::Specification.new do |spec|
   spec.name          = 'version_kit'
   spec.version       = VersionKit::VERSION
-  spec.authors       = ['TODO: Write your name']
-  spec.email         = ['TODO: Write your email address']
-  spec.description   = %q(TODO: Write a gem description)
-  spec.summary       = %q(TODO: Write a gem summary)
-  spec.homepage      = ''
+  spec.authors       =  ['Fabio Pelosin']
+  spec.email         =  ['fabiopelosin@gmail.com']
+  spec.summary       = %q(Provides support for SemVer versions and dependency resolution)
+  spec.homepage      = 'https://github.com/CocoaPods/VersionKit'
   spec.license       = 'MIT'
 
   spec.files         = Dir['lib/**/*.rb'] + %w(README.md LICENSE)
