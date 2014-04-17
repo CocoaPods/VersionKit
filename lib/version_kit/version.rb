@@ -34,8 +34,6 @@ module VersionKit
       @build_metadata = split_identifiers(parts[2])
     end
 
-    public
-
     # @!group Class methods
     #-------------------------------------------------------------------------#
 
