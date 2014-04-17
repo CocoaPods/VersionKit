@@ -126,7 +126,7 @@ module VersionKit
           (@sut <=> 'String').should.be.nil
         end
 
-        it 'always compares major, minor, and patch versions numerically' do
+        it 'compares major, minor, and patch versions numerically' do
           v1 = Version.new('1.0.0')
           v2 = Version.new('2.0.0')
           v3 = Version.new('2.1.0')
@@ -201,17 +201,6 @@ module VersionKit
       it 'returns the patch identifier' do
         Version.new('1.9.4').patch.should == 4
         Version.new('1.0.1-alpha').patch.should == 1
-      end
-
-      it 'returns the release version' do
-        Version.new('1.9.4').release_version.to_s.should == '1.9.4'
-        Version.new('1.9.4-rc0').release_version.to_s.should == '1.9.4'
-      end
-
-      it 'returns the optimistic recommendation' do
-        Version.new('1.9.4').optimistic_recommendation.should == '~> 1.9'
-        Version.new('0.9.4').optimistic_recommendation.should == '~> 0.9.4'
-        Version.new('0.9.4-rc0').optimistic_recommendation.should == '~> 0.9.4'
       end
     end
   end

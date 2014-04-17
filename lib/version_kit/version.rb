@@ -1,8 +1,9 @@
 require 'version_kit/version/helper'
+require 'version_kit/version/components_helper'
 
 module VersionKit
-  # This class handles version strings according to the Semantic Versioning
-  # Specification.
+  # Model class which provides support for versions according to the [Semantic
+  # Versioning Specification](http://semver.org).
   #
   # Currently based on Semantic Versioning 2.0.0.
   #
@@ -13,9 +14,9 @@ module VersionKit
   # - version: a string representing a specific release of a software.
   # - component: a version can have 3 components the number (1.2.3), the
   #   pre-release metadata (rc.1), and the Build component (2014.01.01).
-  # - element: each component in turn is composed by multiple elements
+  # - identifier: each component in turn is composed by multiple identifier
   #   separated by a dot (like 1, 2, or 01).
-  # - bumping: the act of increasing by a single unit one element of the
+  # - bumping: the act of increasing by a single unit one identifier of the
   #   version.
   #
   class Version
@@ -38,20 +39,9 @@ module VersionKit
 
     include Comparable
 
-    # @return [Array<Fixnum>] The elements of the number component of the
-    #         version.
+    # @return [Array<Array<Fixnum,String>>]
     #
-    attr_reader :number_component
-
-    # @return [Array<String, Fixnum>] The elements of the pre-release component
-    #         of the version.
-    #
-    attr_reader :pre_release_component
-
-    # @return [Array<String, Fixnum>] The elements of the build component of
-    #         the version.
-    #
-    attr_reader :build_component
+    attr_reader :components
 
     # @param  [#to_s] version
     #         Any representation of a version convertible to a string.
@@ -63,10 +53,10 @@ module VersionKit
         raise ArgumentError, "Malformed version string `#{version}`"
       end
 
-      parts = version.scan(/[^-+]+/)
-      @number_component = split_component(parts[0])
-      @pre_release_component = split_component(parts[1])
-      @build_component = split_component(parts[2])
+      component_strings = version.scan(/[^-+]+/)
+      @components = (0..2).map do |index|
+        ComponentsHelper.split_component(component_strings[index])
+      end
     end
 
     # @!group Class methods
@@ -96,7 +86,54 @@ module VersionKit
       !(string_reppresentation.to_s =~ VERSION_PATTERN).nil?
     end
 
-    public
+    # @!group Semantic Versioning
+    #-------------------------------------------------------------------------#
+
+    # @return [Array<Fixnum>] The elements of the number component of the
+    #         version.
+    #
+    def number_component
+      @components[0]
+    end
+
+    # @return [Array<String, Fixnum>] The elements of the pre-release component
+    #         of the version.
+    #
+    def pre_release_component
+      @components[1]
+    end
+
+    # @return [Array<String, Fixnum>] The elements of the build component of
+    #         the version.
+    #
+    def build_component
+      @components[2]
+    end
+
+    # @return [Fixnum] The SemVer major version.
+    #
+    def major_version
+      number_component[0]
+    end
+
+    # @return [Fixnum] The SemVer minor version.
+    #
+    def minor
+      number_component[1]
+    end
+
+    # @return [Fixnum] The SemVer patch version.
+    #
+    def patch
+      number_component[2]
+    end
+
+    # @return [Boolean] Indicates whether or not the version is a pre-release
+    #         version.
+    #
+    def pre_release?
+      !pre_release_component.empty?
+    end
 
     # @!group Object methods
     #-------------------------------------------------------------------------#
@@ -156,121 +193,34 @@ module VersionKit
     #         equal to other. 1 means self is bigger than other.
     # @return [Nil] If the two objects could not be compared.
     #
+    # @note   From semver.org:
+    #
+    #         - Major, minor, and patch versions are always compared
+    #           numerically.
+    #         - When major, minor, and patch are equal, a pre-release version
+    #           has lower precedence than a normal version.
+    #         - Precedence for two pre-release versions with the same major,
+    #           minor, and patch version MUST be determined by comparing each
+    #           dot separated identifier from left to right until a difference
+    #           is found as follows: identifiers consisting of only digits are
+    #           compared numerically and identifiers with letters or hyphens
+    #           are compared lexically in ASCII sort order. Numeric identifiers
+    #           always have lower precedence than non-numeric identifiers. A
+    #           larger set of pre-release fields has a higher precedence than a
+    #           smaller set, if all of the preceding identifiers are equal.
+    #         - Build metadata SHOULD be ignored when determining version
+    #           precedence.
+    #
     def <=>(other)
       return nil unless other.class == self.class
 
-      number_component.each_with_index do |element, index|
-        comparison = element <=> other.number_component[index]
-        return comparison if comparison != 0
-      end
+      result = ComponentsHelper.compare_numerical_component(self, other)
+      return result if result != 0
 
-      if self.pre_release? && !other.pre_release?
-        return -1
-      elsif !self.pre_release? && other.pre_release?
-        return 1
-      elsif !self.pre_release? && !other.pre_release?
-        return 0
-      end
-
-      pre_release_identifiers_count =
-        [pre_release_component.count, other.pre_release_component.count].min
-
-      pre_release_identifiers_count.times do |index|
-        self_identifier = pre_release_component[index]
-        othr_identifier = other.pre_release_component[index]
-
-        if !self_identifier.is_a?(String) && othr_identifier.is_a?(String)
-          return -1
-        elsif self_identifier.is_a?(String) && !othr_identifier.is_a?(String)
-          return 1
-        else
-          comparison = self_identifier <=> othr_identifier
-          return comparison if comparison != 0
-        end
-      end
-
-      if pre_release_component.count < other.pre_release_component.count
-        return -1
-      elsif pre_release_component.count > other.pre_release_component.count
-        return 1
-      end
+      result = ComponentsHelper.compare_pre_release_component(self, other)
+      return result if result != 0
 
       0
-    end
-
-    public
-
-    # @!group Semantic Versioning
-    #-------------------------------------------------------------------------#
-
-    # @return [Fixnum] The SemVer major version.
-    #
-    def major_version
-      number_component[0]
-    end
-
-    # @return [Fixnum] The SemVer minor version.
-    #
-    def minor
-      number_component[1]
-    end
-
-    # @return [Fixnum] The SemVer patch version.
-    #
-    def patch
-      number_component[2]
-    end
-
-    # @return [Boolean] Indicates whether or not the version is a pre-release
-    #         version.
-    #
-    def pre_release?
-      !pre_release_component.empty?
-    end
-
-    # @return [Version] The version stripped of any pre-release or build
-    #         metadata.
-    #
-    def release_version
-      self.class.new(number_component.join('.'))
-    end
-
-    # @return [String] The version suggested for the optimistic requirement
-    # (`~>`) which, according to SemVer, preserves backwards compatibility.
-    #
-    def optimistic_recommendation
-      if major_version == 0
-        "~> #{number_component[0..2].join('.')}"
-      else
-        "~> #{number_component[0..1].join('.')}"
-      end
-    end
-
-    private
-
-    # @!group Private Helpers
-    #-------------------------------------------------------------------------#
-
-    # Splits a component to the elements separated by a dot in an array
-    # converting the ones composed only by digits to a number.
-    #
-    # @param  [String] component
-    #         The component to split in elements.
-    #
-    # @return [Array<String,Fixnum>] The list of the elements of the component.
-    #
-    def split_component(component)
-      if component
-        component.split('.').map do |element|
-          if element =~ /\A[0-9]+\Z/
-            element.to_i
-          else
-            element
-          end
-        end
-      else
-        []
-      end
     end
   end
 end

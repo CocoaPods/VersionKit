@@ -2,6 +2,10 @@ module VersionKit
   # Describes a constraint on the acceptable elements of a list of versions.
   # The only relevant method for this class is the `#satisfied_by?` method.
   #
+  # The optimistic requirement is deemed optimistic because the user if
+  # optimistic about the correct versioning of the software the requirement
+  # refers to.
+  #
   class Requirement
     # @return [String] The operator of the constraint.
     #

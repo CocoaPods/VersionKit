@@ -54,8 +54,7 @@ module VersionKit
           new << element
         end
         if version.pre_release_component != new
-          string = "#{version.number_component.join('.')}-#{new.join('.')}"
-          Version.new(string)
+          Version.new("#{version.number_component.join('.')}-#{new.join('.')}")
         end
       end
 
