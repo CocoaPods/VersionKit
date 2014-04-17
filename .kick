@@ -4,7 +4,7 @@ Kicker::Recipes::Ruby.runner_bin = 'bacon --quiet'
 
 process do |files|
   specs = files.take_and_map do |file|
-    if file =~ %r{lib/cocoapods-core/(.+?)\.rb$}
+    if file =~ %r{lib/version_kit/(.+?)\.rb$}
       s = Dir.glob("spec/**/#{File.basename(file, '.rb')}_spec.rb")
       s.uniq unless s.empty?
     end
