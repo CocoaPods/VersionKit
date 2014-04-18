@@ -184,7 +184,7 @@ module VersionKit
     # @return [Fixnum] The hash value for this instance.
     #
     def hash
-      to_s.hash
+      [to_s].hash
     end
 
     # Compares the instance to another version to determine how it sorts.

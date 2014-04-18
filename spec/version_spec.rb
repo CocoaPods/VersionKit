@@ -2,35 +2,38 @@ require File.expand_path('../spec_helper', __FILE__)
 
 module VersionKit
   describe Version do
-
     describe 'Class methods' do
+      before do
+        @subject = Version
+      end
+
       describe '::new' do
         it 'can be initialized with a string' do
-          result = Version.new('1.2.0-alpha1.0+20130313144700')
+          result = @subject.new('1.2.0-alpha1.0+20130313144700')
           result.to_s.should == '1.2.0-alpha1.0+20130313144700'
         end
 
         it 'can be initialized with any object convertible to a string' do
-          result = Version.new(Version.new('1.2.0-alpha1.0+20130313144700'))
+          result = @subject.new(@subject.new('1.2.0-alpha1.0+20130313144700'))
           result.to_s.should == '1.2.0-alpha1.0+20130313144700'
         end
 
         it 'leniently accepts major versions' do
-          Version.new('1').to_s.should == '1.0.0'
+          @subject.new('1').to_s.should == '1.0.0'
         end
 
         it 'leniently accepts minor versions' do
-          Version.new('1.0').to_s.should == '1.0.0'
+          @subject.new('1.0').to_s.should == '1.0.0'
         end
 
         it 'raises if initialized with a non valid representation' do
           should.raise ArgumentError do
-            Version.new('v1+build_metadata-version')
+            @subject.new('v1+build_metadata-version')
           end.message.should.match /Malformed version/
         end
 
         it 'populates the components of the version' do
-          result = Version.new('1.2.0-alpha1.0+20130313144700')
+          result = @subject.new('1.2.0-alpha1.0+20130313144700')
           result.components.should ==
             [[1, 2, 0], ['alpha1', 0], [20_130_313_144_700]]
         end
@@ -38,111 +41,141 @@ module VersionKit
 
       describe '::normalize' do
         it 'defaults to 0 the patch version if missing' do
-          Version.normalize('1.0').should == '1.0.0'
+          @subject.normalize('1.0').should == '1.0.0'
         end
 
         it 'defaults to 0 the minor version if missing' do
-          Version.normalize('1').should == '1.0.0'
+          @subject.normalize('1').should == '1.0.0'
         end
 
         it 'modifies only strings including with a major and minor versions' do
-          Version.normalize('1-alpha').should == '1-alpha'
+          @subject.normalize('1-alpha').should == '1-alpha'
         end
       end
 
       describe '::valid?' do
         it 'accepts a normal version number' do
-          Version.valid?('1.9.0').should.be.true
-          Version.valid?('1.20.145').should.be.true
+          @subject.valid?('1.9.0').should.be.true
+          @subject.valid?('1.20.145').should.be.true
         end
 
         it 'accepts pre-release components' do
-          Version.valid?('1.0.0-alpha').should.be.true
-          Version.valid?('1.0.0-alpha.1').should.be.true
-          Version.valid?('1.0.0-0.3.7').should.be.true
-          Version.valid?('1.0.0-x.7.z.92').should.be.true
-          Version.valid?('1.0.0-rc1').should.be.true
+          @subject.valid?('1.0.0-alpha').should.be.true
+          @subject.valid?('1.0.0-alpha.1').should.be.true
+          @subject.valid?('1.0.0-0.3.7').should.be.true
+          @subject.valid?('1.0.0-x.7.z.92').should.be.true
+          @subject.valid?('1.0.0-rc1').should.be.true
         end
 
         it 'accepts versions including Build component' do
-          Version.valid?('1.0.0-alpha+001').should.be.true
-          Version.valid?('1.0.0+20130313144700').should.be.true
-          Version.valid?('1.0.0-beta+exp.sha.5114f85').should.be.true
-          Version.valid?('1.2.3+0000.build').should.be.true
+          @subject.valid?('1.0.0-alpha+001').should.be.true
+          @subject.valid?('1.0.0+20130313144700').should.be.true
+          @subject.valid?('1.0.0-beta+exp.sha.5114f85').should.be.true
+          @subject.valid?('1.2.3+0000.build').should.be.true
         end
 
         it 'rejects non numerical characters in the Number component' do
-          Version.valid?('v0.0.1').should.be.false
-          Version.valid?('0.0.1alpha').should.be.false
-          Version.valid?('0.0 .1').should.be.false
-          Version.valid?('0.1+.1').should.be.false
+          @subject.valid?('v0.0.1').should.be.false
+          @subject.valid?('0.0.1alpha').should.be.false
+          @subject.valid?('0.0 .1').should.be.false
+          @subject.valid?('0.1+.1').should.be.false
         end
 
         it 'rejects versions with an identifier count different than 3' do
-          Version.valid?('1').should.be.false
-          Version.valid?('0.1').should.be.false
-          Version.valid?('0.1.0.3').should.be.false
-          Version.valid?('0.1-alpha').should.be.false
+          @subject.valid?('1').should.be.false
+          @subject.valid?('0.1').should.be.false
+          @subject.valid?('0.1.0.3').should.be.false
+          @subject.valid?('0.1-alpha').should.be.false
         end
-      end
-    end
-
-    describe 'In general' do
-      before do
-        @sut = Version.new('1.2.0-alpha1.0+20130313144700')
-      end
-
-      it 'returns the major, minor and patch version' do
-        @sut.number_component.should == [1, 2, 0]
-      end
-
-      it 'returns the pre-release identifiers' do
-        @sut.pre_release_component.should == ['alpha1', 0]
-      end
-
-      it 'returns the build identifiers' do
-        @sut.build_component.should == [20_130_313_144_700]
       end
     end
 
     describe 'Instance methods' do
       before do
-        @sut = Version.new('1.2.3')
+        @subject = Version.new('1.2.0-alpha1.0+20130313144700')
+      end
+
+      it 'returns the number component' do
+        @subject.number_component.should == [1, 2, 0]
+      end
+
+      it 'returns the pre-release component' do
+        @subject.pre_release_component.should == ['alpha1', 0]
+      end
+
+      it 'returns the build component' do
+        @subject.build_component.should == [20_130_313_144_700]
+      end
+
+      it 'returns the major version' do
+        Version.new('1.9.0').major_version.should == 1
+        Version.new('1.0.0-alpha').major_version.should == 1
+      end
+
+      it 'returns the minor version' do
+        Version.new('1.9.0').minor.should == 9
+        Version.new('1.4.0-alpha').minor.should == 4
+      end
+
+      it 'returns the patch version' do
+        Version.new('1.9.4').patch.should == 4
+        Version.new('1.0.1-alpha').patch.should == 1
+      end
+
+      it 'returns whether it is a pre_release version' do
+        version = Version.new('1.0.0')
+        version.should.not.be.pre_release
+        version = Version.new('1.0.0-x.7.z.92')
+        version.should.be.pre_release
       end
 
       it 'returns the string representation' do
-        @sut.to_s.should == '1.2.3'
+        @subject.to_s.should == '1.2.0-alpha1.0+20130313144700'
       end
 
       it 'returns a string suitable for debugging' do
-        @sut.inspect.should == '<VersionKit::Version 1.2.3>'
+        @subject.inspect.should ==
+          '<VersionKit::Version 1.2.0-alpha1.0+20130313144700>'
       end
 
-      it 'returns whether it is equal to another version' do
-        Version.new('1.2.3').should == Version.new('1.2.3')
-        Version.new('1.2.3').should.not == Version.new('1.2.4')
+      describe '#==' do
+        it 'returns whether it is equal to another version' do
+          @subject.should == Version.new('1.2.0-alpha1.0+20130313144700')
+          @subject.should.not == Version.new('1.2.0')
+        end
+
+        it 'can be compared to a string' do
+          @subject.should == '1.2.0-alpha1.0+20130313144700'
+          @subject.should.not == '1.2.0'
+        end
       end
 
-      describe 'eql?' do
-        it 'returns true for if the version are the same' do
-          other = Version.new('1.2.3')
-          @sut.should.eql(other)
+      describe '#eql?' do
+        it 'returns true if the version are the same' do
+          other = Version.new('1.2.0-alpha1.0+20130313144700')
+          @subject.should.eql(other)
         end
 
         it 'returns false if the version are not the same' do
-          other = Version.new('1.2.4')
-          @sut.should.not.eql(other)
+          other = Version.new('1.2.0')
+          @subject.should.not.eql(other)
         end
       end
 
-      it 'returns the hash' do
-        @sut.hash.should == '1.2.3'.hash
-        @sut.hash.should == Version.new('1.2.3').hash
+      describe '#hash?' do
+        it 'returns the hash' do
+          @subject.hash.should ==
+            Version.new('1.2.0-alpha1.0+20130313144700').hash
+        end
+
+        it 'uses a different hash of the string representation' do
+          @subject.hash.should.not == '1.2.0-alpha1.0+20130313144700'.hash
+        end
       end
 
-      describe '<=>' do
+      describe '#<=>' do
         it 'returns nil if compared to an object of another class' do
-          (@sut <=> 'String').should.be.nil
+          (@subject <=> 'String').should.be.nil
         end
 
         it 'compares major, minor, and patch versions numerically' do
@@ -189,36 +222,6 @@ module VersionKit
           v2 = Version.new('1.0.0-alpha')
           (v1 <=> v2).should == 0
         end
-      end
-
-    end
-
-    #-------------------------------------------------------------------------#
-
-    describe 'Semantic Versioning' do
-      it 'identifies release versions' do
-        version = Version.new('1.0.0')
-        version.should.not.be.pre_release
-      end
-
-      it 'identifies Pre-release components' do
-        version = Version.new('1.0.0-x.7.z.92')
-        version.should.be.pre_release
-      end
-
-      it 'returns the major version' do
-        Version.new('1.9.0').major_version.should == 1
-        Version.new('1.0.0-alpha').major_version.should == 1
-      end
-
-      it 'returns the minor identifier' do
-        Version.new('1.9.0').minor.should == 9
-        Version.new('1.4.0-alpha').minor.should == 4
-      end
-
-      it 'returns the patch identifier' do
-        Version.new('1.9.4').patch.should == 4
-        Version.new('1.0.1-alpha').patch.should == 1
       end
     end
   end

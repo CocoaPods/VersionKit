@@ -26,5 +26,4 @@ require 'bundler/setup'
 require 'bacon'
 require 'mocha-on-bacon'
 require 'pretty_bacon'
-
 require 'version_kit'

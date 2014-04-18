@@ -9,27 +9,27 @@ module VersionKit
 
       describe '#new' do
         it 'can be initialized with a version' do
-          sut = Requirement.new('1.0.0')
-          sut.operator.should == '='
-          sut.reference_version.should == '1.0.0'
+          @subject = Requirement.new('1.0.0')
+          @subject.operator.should == '='
+          @subject.reference_version.should == '1.0.0'
         end
 
         it 'can be initialized with a non normalized version' do
-          sut = Requirement.new('1.0')
-          sut.operator.should == '='
-          sut.reference_version.should == '1.0.0'
+          @subject = Requirement.new('1.0')
+          @subject.operator.should == '='
+          @subject.reference_version.should == '1.0.0'
         end
 
         it 'can be initialized with a version preceded by a space' do
-          sut = Requirement.new(' 1.0')
-          sut.operator.should == '='
-          sut.reference_version.should == '1.0.0'
+          @subject = Requirement.new(' 1.0')
+          @subject.operator.should == '='
+          @subject.reference_version.should == '1.0.0'
         end
 
         it 'can be initialized with a given operator' do
-          sut = Requirement.new('!= 2.1.3')
-          sut.operator.should == '!='
-          sut.reference_version.should == '2.1.3'
+          @subject = Requirement.new('!= 2.1.3')
+          @subject.operator.should == '!='
+          @subject.reference_version.should == '2.1.3'
         end
 
         it 'raises if initialized with an unsupported operator' do
@@ -53,53 +53,53 @@ module VersionKit
 
       describe '#satisfied_by?' do
         it 'returns whether a version satisfies the `=` operator' do
-          sut = Requirement.new('= 2.1.0')
-          sut.should.be.satisfied_by?('2.1.0')
-          sut.should.be.satisfied_by?('2.1')
-          sut.should.be.not.satisfied_by?('2.2.0')
+          @subject = Requirement.new('= 2.1.0')
+          @subject.should.be.satisfied_by?('2.1.0')
+          @subject.should.be.satisfied_by?('2.1')
+          @subject.should.be.not.satisfied_by?('2.2.0')
         end
 
         it 'returns whether a version satisfies the `!=` operator' do
-          sut = Requirement.new('!= 2.1.0')
-          sut.should.be.satisfied_by?('2.2.0')
-          sut.should.be.not.satisfied_by?('2.1.0')
-          sut.should.be.not.satisfied_by?('2.1')
+          @subject = Requirement.new('!= 2.1.0')
+          @subject.should.be.satisfied_by?('2.2.0')
+          @subject.should.be.not.satisfied_by?('2.1.0')
+          @subject.should.be.not.satisfied_by?('2.1')
         end
 
         it 'returns whether a version satisfies the `>` operator' do
-          sut = Requirement.new('> 2.1.0')
-          sut.should.be.satisfied_by?('2.2')
-          sut.should.not.be.satisfied_by?('2.1')
+          @subject = Requirement.new('> 2.1.0')
+          @subject.should.be.satisfied_by?('2.2')
+          @subject.should.not.be.satisfied_by?('2.1')
         end
 
         it 'returns whether a version satisfies the `<` operator' do
-          sut = Requirement.new('< 2.1.0')
-          sut.should.be.satisfied_by?('2.0')
-          sut.should.not.be.satisfied_by?('2.1')
-          sut.should.not.be.satisfied_by?('2.2')
+          @subject = Requirement.new('< 2.1.0')
+          @subject.should.be.satisfied_by?('2.0')
+          @subject.should.not.be.satisfied_by?('2.1')
+          @subject.should.not.be.satisfied_by?('2.2')
         end
 
         it 'returns whether a version satisfies the `>=` operator' do
-          sut = Requirement.new('>= 2.1.0')
-          sut.should.be.satisfied_by?('2.2')
-          sut.should.be.satisfied_by?('2.1')
-          sut.should.not.be.satisfied_by?('2.0')
+          @subject = Requirement.new('>= 2.1.0')
+          @subject.should.be.satisfied_by?('2.2')
+          @subject.should.be.satisfied_by?('2.1')
+          @subject.should.not.be.satisfied_by?('2.0')
         end
 
         it 'returns whether a version satisfies the `<=` operator' do
-          sut = Requirement.new('<= 2.1.0')
-          sut.should.be.satisfied_by?('2.0')
-          sut.should.be.satisfied_by?('2.1')
-          sut.should.not.be.satisfied_by?('2.2')
+          @subject = Requirement.new('<= 2.1.0')
+          @subject.should.be.satisfied_by?('2.0')
+          @subject.should.be.satisfied_by?('2.1')
+          @subject.should.not.be.satisfied_by?('2.2')
         end
 
         it 'returns whether a version satisfies the `~>` operator' do
-          sut = Requirement.new('~> 2.1.0')
-          sut.should.be.satisfied_by?('2.1')
-          sut.should.be.satisfied_by?('2.1.0')
-          sut.should.be.satisfied_by?('2.1.5')
-          sut.should.be.not.satisfied_by?('2.2.0')
-          sut.should.be.not.satisfied_by?('2.2')
+          @subject = Requirement.new('~> 2.1.0')
+          @subject.should.be.satisfied_by?('2.1')
+          @subject.should.be.satisfied_by?('2.1.0')
+          @subject.should.be.satisfied_by?('2.1.5')
+          @subject.should.be.not.satisfied_by?('2.2.0')
+          @subject.should.be.not.satisfied_by?('2.2')
         end
       end
     end
@@ -109,13 +109,13 @@ module VersionKit
     describe 'Object methods' do
       describe '#to_s' do
         it 'returns the string representation' do
-          sut = Requirement.new('!= 2.1.0')
-          sut.to_s.should == '!= 2.1.0'
+          @subject = Requirement.new('!= 2.1.0')
+          @subject.to_s.should == '!= 2.1.0'
         end
 
         it 'normalized the version' do
-          sut = Requirement.new('!= 2.1')
-          sut.to_s.should == '!= 2.1.0'
+          @subject = Requirement.new('!= 2.1')
+          @subject.to_s.should == '!= 2.1.0'
         end
       end
 
