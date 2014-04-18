@@ -48,13 +48,13 @@ module VersionKit
       def self.next_pre_release(version)
         version = coherce_version(version)
         return nil unless version.pre_release_component
-        new = []
+        pre_release_component = []
         version.pre_release_component.each do |element|
           element = element.succ if element.is_a?(Fixnum)
-          new << element
+          pre_release_component << element
         end
-        if version.pre_release_component != new
-          Version.new("#{version.number_component.join('.')}-#{new.join('.')}")
+        if version.pre_release_component != pre_release_component
+          Version.new([version.number_component, pre_release_component])
         end
       end
 
@@ -87,7 +87,7 @@ module VersionKit
       #
       def self.release_version(version)
         version = coherce_version(version)
-        Version.new(version.number_component.join('.'))
+        Version.new([version.number_component])
       end
 
       # @return [String] The optimistic requirement (`~>`) which, according to
