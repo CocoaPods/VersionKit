@@ -136,6 +136,27 @@ module VersionKit
           nil
         end
       end
+
+      # Checks whether the given components are valid.
+      #
+      # @param  [Array<Array<String, Fixnum>>] components
+      #         The components to check.
+      #
+      # @return [Bool] If the given components are valid.
+      #
+      # rubocop:disable CyclomaticComplexity
+      #
+      def self.validate_components?(components)
+        components.is_a?(Array) &&
+          components.map(&:class).uniq == [Array] &&
+          components.count == 3 &&
+          components.first.count == 3 &&
+          (components[0].map(&:class) - [Fixnum]).empty? &&
+          (components[1].map(&:class) - [String, Fixnum]).empty? &&
+          (components[2].map(&:class) - [String, Fixnum]).empty?
+      end
+      #
+      # rubocop:enable CyclomaticComplexity
     end
   end
 end

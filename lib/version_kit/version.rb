@@ -51,32 +51,72 @@ module VersionKit
     # standard clients can use the `Version::valid?` method to check any
     # string.
     #
-    # @param  [#to_s] version
-    #         Any representation of a version convertible to a string.
+    # @param  [#to_s, Array<Array<String, Fixnum>>] version
+    #         A representation of a version convertible to a string or the
+    #         components of a version.
     #
     # @raise  If initialized with a string which cannot be converted to a
     #         version.
     #
-    def initialize(version)
-      version = self.class.normalize(version)
+    # rubocop:disable MethodLength
+    #
+    def initialize(version_or_components)
+      if version_or_components.is_a?(Array)
+        components = self.class.normalize_components(version_or_components)
+        unless ComponentsHelper.validate_components?(components)
+          raise ArgumentError, "Malformed version components `#{components}`"
+        end
+        @components = components
 
-      unless self.class.valid?(version)
-        raise ArgumentError, "Malformed version `#{version}`"
+      else
+        version = self.class.normalize(version_or_components)
+        unless self.class.valid?(version)
+          raise ArgumentError, "Malformed version `#{version}`"
+        end
+        @components = ComponentsHelper.split_components(version)
       end
-
-      @components = ComponentsHelper.split_components(version)
     end
+    #
+    # rubocop:enable MethodLength
 
     # @!group Class methods
     #-------------------------------------------------------------------------#
 
-    # @return [String]
+    # Normalizes the given string representation of a version by defaulting
+    # the minor and the patch version to 0 if possible.
+    #
+    # @param  [#to_s] version
+    #         The string representation to normalize.
+    #
+    # @return [String] The normalized or the original version.
     #
     def self.normalize(version)
       version = version.to_s.strip
       version << '.0' if version  =~ /\A[0-9]+\Z/
       version << '.0' if version  =~ /\A[0-9]+\.[0-9]+\Z/
       version
+    end
+
+    # Normalizes the given version components by defaulting the minor and the
+    # patch version to 0 if possible.
+    #
+    # @param  [Array<Array<String, Fixnum>>] components
+    #         The components to normalize.
+    #
+    # @return [Array] The normalized or the original components.
+    #
+    def self.normalize_components(components)
+      if components.is_a?(Array) && components[0].is_a?(Array)
+        count = components.count
+        components = components.fill([], count, 3 - count) if count < 3
+
+        number_count = components[0].count
+        if number_count < 3
+          components[0] = components[0].fill(0, number_count, 3 - number_count)
+        end
+      end
+
+      components
     end
 
     # @return [Bool] Whether a string representation of a version is can be

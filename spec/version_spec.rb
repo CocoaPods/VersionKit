@@ -18,15 +18,15 @@ module VersionKit
           result.to_s.should == '1.2.0-alpha1.0+20130313144700'
         end
 
-        it 'leniently accepts major versions' do
+        it 'leniently accepts strings with major versions' do
           @subject.new('1').to_s.should == '1.0.0'
         end
 
-        it 'leniently accepts minor versions' do
+        it 'leniently accepts strings with minor versions' do
           @subject.new('1.0').to_s.should == '1.0.0'
         end
 
-        it 'raises if initialized with a non valid representation' do
+        it 'raises if initialized with a non valid string representation' do
           should.raise ArgumentError do
             @subject.new('v1+build_metadata-version')
           end.message.should.match /Malformed version/
@@ -36,6 +36,26 @@ module VersionKit
           result = @subject.new('1.2.0-alpha1.0+20130313144700')
           result.components.should ==
             [[1, 2, 0], ['alpha1', 0], [20_130_313_144_700]]
+        end
+
+        it 'can be initialized with the components' do
+          components = [[1, 2, 0], ['alpha1', 0], [20_130_313_144_700]]
+          result = @subject.new(components)
+          result.to_s.should == '1.2.0-alpha1.0+20130313144700'
+        end
+
+        it 'leniently accepts components with major versions' do
+          @subject.new([[1]]).to_s.should == '1.0.0'
+        end
+
+        it 'leniently accepts components with minor versions' do
+          @subject.new([[1, 0]]).to_s.should == '1.0.0'
+        end
+
+        it 'raises if initialized with a non valid components' do
+          should.raise ArgumentError do
+            @subject.new(['alpha1'])
+          end.message.should.match /Malformed version components/
         end
       end
 
@@ -48,8 +68,34 @@ module VersionKit
           @subject.normalize('1').should == '1.0.0'
         end
 
-        it 'modifies only strings including with a major and minor versions' do
+        it 'returns the given value if the normalization is not safe' do
           @subject.normalize('1-alpha').should == '1-alpha'
+        end
+      end
+
+      describe '::normalize_components' do
+        it 'defaults to 0 the patch version if missing' do
+          @subject.normalize_components([[1, 0], [], []]).should ==
+            [[1, 0, 0], [], []]
+        end
+
+        it 'defaults to 0 the minor version if missing' do
+          @subject.normalize_components([[1], [], []]).should ==
+            [[1, 0, 0], [], []]
+        end
+
+        it 'includes an empty number component if missing' do
+          @subject.normalize_components([[1, 0, 0]]).should ==
+            [[1, 0, 0], [], []]
+        end
+
+        it 'includes an empty pre-release component if missing' do
+          @subject.normalize_components([[1, 0, 0], []]).should ==
+            [[1, 0, 0], [], []]
+        end
+
+        it 'returns the given value if the normalization is not safe' do
+          @subject.normalize_components('1-alpha').should == '1-alpha'
         end
       end
 

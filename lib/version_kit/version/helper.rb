@@ -15,9 +15,9 @@ module VersionKit
         end
 
         version = coherce_version(version)
-        components = version.number_component[0..index]
-        components[index] = components[index].succ
-        Version.new(components.join('.'))
+        number_components = version.number_component[0..index]
+        number_components[index] = number_components[index].succ
+        Version.new([number_components])
       end
 
       # @param  [Version, #to_s] version

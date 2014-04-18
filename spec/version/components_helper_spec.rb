@@ -151,5 +151,43 @@ module VersionKit
         @subject.compare('value', 'another_value').should.be.nil
       end
     end
+
+    describe '::compare' do
+      it 'rejects objects which are not an array' do
+        @subject.validate_components?('components').should.be.false
+      end
+
+      it 'rejects arrays which do not contain only arrays' do
+        @subject.validate_components?(['components']).should.be.false
+      end
+
+      it 'rejects arrays with a number of components different than 3' do
+        @subject.validate_components?([[]]).should.be.false
+      end
+
+      it 'rejects number components with a incorrect number of identifiers' do
+        @subject.validate_components?([[1]]).should.be.false
+      end
+
+      it 'rejects string identifiers for number components' do
+        components = [[1, 2, '3'], [], []]
+        @subject.validate_components?(components).should.be.false
+      end
+
+      it 'checks the class of the pre-release identifiers' do
+        components = [[1, 2, 3], [nil], []]
+        @subject.validate_components?(components).should.be.false
+      end
+
+      it 'checks the class of the build identifiers' do
+        components = [[1, 2, 3], [], [nil]]
+        @subject.validate_components?(components).should.be.false
+      end
+
+      it 'accepts valid components' do
+        components = [[1, 2, 0], ['alpha1', 0], [20_130_313_144_700]]
+        @subject.validate_components?(components).should.be.true
+      end
+    end
   end
 end
