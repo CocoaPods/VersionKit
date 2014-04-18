@@ -44,14 +44,24 @@ module VersionKit
     #
     attr_reader :components
 
+    # The Semantic Versioning Specification mandates a number component
+    # composed by 3 identifiers. Therefore strictly speaking `1` and `1.0`
+    # are not versions according the specification. This class accepts those
+    # values normalizing them to `1.0.0`. To ensure strict adherence to the
+    # standard clients can use the `Version::valid?` method to check any
+    # string.
+    #
     # @param  [#to_s] version
     #         Any representation of a version convertible to a string.
     #
+    # @raise  If initialized with a string which cannot be converted to a
+    #         version.
+    #
     def initialize(version)
-      version = version.to_s.strip
+      version = self.class.normalize(version)
 
       unless self.class.valid?(version)
-        raise ArgumentError, "Malformed version string `#{version}`"
+        raise ArgumentError, "Malformed version `#{version}`"
       end
 
       @components = ComponentsHelper.split_components(version)
@@ -60,16 +70,10 @@ module VersionKit
     # @!group Class methods
     #-------------------------------------------------------------------------#
 
-    # @return [Version]
-    #
-    def self.lenient_new(version)
-      new(normalize(version))
-    end
-
     # @return [String]
     #
     def self.normalize(version)
-      version = version.strip.to_s
+      version = version.to_s.strip
       version << '.0' if version  =~ /\A[0-9]+\Z/
       version << '.0' if version  =~ /\A[0-9]+\.[0-9]+\Z/
       version
@@ -80,8 +84,8 @@ module VersionKit
     #         the requirements described in the SemVer specification to support
     #         the diversity of versioning practices found in practice.
     #
-    def self.valid?(string_reppresentation)
-      !(string_reppresentation.to_s =~ VERSION_PATTERN).nil?
+    def self.valid?(version)
+      !(version.to_s =~ VERSION_PATTERN).nil?
     end
 
     # @!group Semantic Versioning

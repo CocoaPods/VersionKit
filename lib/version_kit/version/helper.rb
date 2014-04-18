@@ -17,7 +17,7 @@ module VersionKit
         version = coherce_version(version)
         components = version.number_component[0..index]
         components[index] = components[index].succ
-        Version.lenient_new(components.join('.'))
+        Version.new(components.join('.'))
       end
 
       # @param  [Version, #to_s] version
@@ -109,7 +109,7 @@ module VersionKit
         if version.is_a?(Version)
           version
         else
-          Version.lenient_new(version)
+          Version.new(version)
         end
       end
     end

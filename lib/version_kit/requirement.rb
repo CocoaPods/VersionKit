@@ -28,7 +28,7 @@ module VersionKit
 
       @operator = operator
       @reference_version = reference_version
-      @reference = Version.lenient_new(reference_version)
+      @reference = Version.new(reference_version)
     end
 
     # @param  [String] candidate_version
@@ -39,7 +39,7 @@ module VersionKit
     # rubocop:disable MethodLength, CyclomaticComplexity
     #
     def satisfied_by?(candidate_version)
-      candidate = Version.lenient_new(candidate_version)
+      candidate = Version.new(candidate_version)
       reference = @reference
 
       case operator
