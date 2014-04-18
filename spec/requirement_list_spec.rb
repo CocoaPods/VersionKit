@@ -81,6 +81,16 @@ module VersionKit
           @subject.hash.class.should == Fixnum
         end
       end
+
+      describe '#==' do
+        it 'is equal to another with the same requirements' do
+          @subject.should == RequirementList.new(['> 1.2', '< 3.0'])
+        end
+
+        it 'is not equal to another with different requirements' do
+          @subject.should != RequirementList.new(['> 1.2', '< 3.1'])
+        end
+      end
     end
 
     #-------------------------------------------------------------------------#

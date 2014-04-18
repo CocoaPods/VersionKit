@@ -30,6 +30,12 @@ module VersionKit
       it 'handles a version instance' do
         @subject.bump(Version.new('1.2.3-rc.1'), 0).should == '2.0.0'
       end
+
+      it 'raises if the given index is out of range' do
+        should.raise ArgumentError do
+          @subject.bump('1.2.3-rc.1', 3)
+        end.message.should.eql?('Unsupported index `3`')
+      end
     end
 
     describe 'next_major' do
