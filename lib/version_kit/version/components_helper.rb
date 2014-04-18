@@ -1,45 +1,96 @@
 module VersionKit
   class Version
-    # Identifies the possible next versions from a given one.
+    # Provides support for working with version components and comparing them.
+    #
+    # Assumes identifiers converted to the appropriate class as the ones
+    # returned by the `::split_identifiers` method.
     #
     module ComponentsHelper
-      # Compares the numerical component with the one of another version.
+      # Splits a string representing a component in a list of the single
+      # identifiers (separated by a dot). Identifiers composed only by digits
+      # are converted to an integer in the process.
       #
-      # @param  [Version] second
-      #         The version to compare against.
+      # @param  [Array<String>] components
+      #         The list of the components.
+      #
+      # @return [Array<String,Fixnum>] The list of the elements of the
+      #         component.
+      #
+      def self.split_components(version)
+        component_strings = version.scan(/[^-+]+/)
+        (0...3).map do |index|
+          indentifiers_string = component_strings[index]
+          if indentifiers_string
+            ComponentsHelper.split_identifiers(indentifiers_string)
+          else
+            []
+          end
+        end
+      end
+
+      # Splits a string representing a component in a list of the single
+      # identifiers (separated by a dot). Identifiers composed only by digits
+      # are converted to an integer in the process.
+      #
+      # @param  [String] component
+      #         The string of the component to split in identifiers.
+      #
+      # @return [Array<String,Fixnum>] The list of the identifiers of the
+      #         component.
+      #
+      def self.split_identifiers(component)
+        component.split('.').map do |identifier|
+          if identifier =~ /\A[0-9]+\Z/
+            identifier.to_i
+          else
+            identifier
+          end
+        end
+      end
+
+      # Compares the number component of one version with the one of another
+      # version.
+      #
+      # @param  [Array<Fixnum>] first
+      #         The component of the first version.
+      #
+      # @param  [Array<Fixnum>] second
+      #         The component of the second version.
       #
       # @return [Fixnum] See #<=>
       #
-      def self.compare_numerical_component(first, second)
-        first.number_component.each_with_index do |element, index|
-          result = element <=> second.number_component[index]
-          return result if result != 0
+      def self.compare_number_component(first, second)
+        count = [first.count, second.count].max
+        count.times do |index|
+          result = first[index].to_i <=> second[index].to_i
+          return result unless result.zero?
         end
-        0
+
+        nil
       end
 
-      # Compares the pre-release component with the one of another version.
+      # Compares the pre-release component of one version with the one of
+      # another version.
       #
-      # @param  [Version] second
-      #         The version to compare against.
+      # @param  [Array<Fixnum>] first
+      #         The component of the first version.
+      #
+      # @param  [Array<Fixnum>] second
+      #         The component of the second version.
       #
       # @return [Fixnum] See #<=>
       #
       def self.compare_pre_release_component(first, second)
-        result = (first.pre_release? ? 0 : 1) <=> (second.pre_release? ? 0 : 1)
-        return result if result != 0
+        result = (first.empty? ? 1 : 0) <=> (second.empty? ? 1 : 0)
+        return result unless result.zero?
 
-        first_component = first.pre_release_component
-        second_component = second.pre_release_component
-
-        count = [first_component.count, second_component.count].max
+        count = [first.count, second.count].max
         count.times do |index|
-          first_value = first_component[index]
-          second_value = second_component[index]
-          result = compare_pre_release_identifiers(first_value, second_value)
-          return result if result != 0
+          result = compare_pre_release_identifiers(first[index], second[index])
+          return result unless result.zero?
         end
-        0
+
+        nil
       end
 
       # Compares two pre-release identifiers.
@@ -53,39 +104,36 @@ module VersionKit
       # @return [Fixnum] See #<=>
       #
       def self.compare_pre_release_identifiers(first, second)
-        return -1 if first.nil?
-        return +1 if second.nil?
+        result = compare(first, second)
+        result ||= compare(first.is_a?(String), second.is_a?(String))
+        return result if result
 
-        if first.is_a?(Fixnum) && second.is_a?(Fixnum)
+        if first.is_a?(Fixnum)
           first.to_i <=> second.to_i
-        elsif first.is_a?(Fixnum)
-          -1
-        elsif second.is_a?(Fixnum)
-          +1
-        else
+        elsif first.is_a?(String)
           first.to_s <=> second.to_s
         end
       end
 
-      # Splits a component to the elements separated by a dot in an array
-      # converting the ones composed only by digits to a number.
+      # Compares two boolean values returning a comparison result if only one
+      # condition is truthy.
       #
-      # @param  [String] component
-      #         The component to split in elements.
+      # @param  [Object] fist
+      #         The first object to compare.
       #
-      # @return [Array<String,Fixnum>] The list of the elements of the component.
+      # @param  [Object] second
+      #         The second object to compare.
       #
-      def self.split_component(component)
-        if component
-          component.split('.').map do |identifier|
-            if identifier =~ /\A[0-9]+\Z/
-              identifier.to_i
-            else
-              identifier
-            end
-          end
+      # @return [Fixnum] See #<=>
+      # @return [Nil] If the comparison didn't produce any result.
+      #
+      def self.compare(first, second)
+        if first && !second
+          +1
+        elsif second && !first
+          -1
         else
-          []
+          nil
         end
       end
     end

@@ -39,7 +39,8 @@ module VersionKit
 
     include Comparable
 
-    # @return [Array<Array<Fixnum,String>>]
+    # @return [Array<Array<Fixnum,String>>] The list of the components of the
+    # version.
     #
     attr_reader :components
 
@@ -53,10 +54,7 @@ module VersionKit
         raise ArgumentError, "Malformed version string `#{version}`"
       end
 
-      component_strings = version.scan(/[^-+]+/)
-      @components = (0..2).map do |index|
-        ComponentsHelper.split_component(component_strings[index])
-      end
+      @components = ComponentsHelper.split_components(version)
     end
 
     # @!group Class methods
@@ -89,40 +87,40 @@ module VersionKit
     # @!group Semantic Versioning
     #-------------------------------------------------------------------------#
 
-    # @return [Array<Fixnum>] The elements of the number component of the
-    #         version.
+    # @return [Array<Fixnum>] The list of the identifiers of the number
+    #         component.
     #
     def number_component
       @components[0]
     end
 
-    # @return [Array<String, Fixnum>] The elements of the pre-release component
-    #         of the version.
+    # @return [Array<String, Fixnum>] The list of the identifiers of the
+    #         pre-release component.
     #
     def pre_release_component
       @components[1]
     end
 
-    # @return [Array<String, Fixnum>] The elements of the build component of
-    #         the version.
+    # @return [Array<String, Fixnum>] The list of the identifiers of the build
+    #         component.
     #
     def build_component
       @components[2]
     end
 
-    # @return [Fixnum] The SemVer major version.
+    # @return [Fixnum] The major version.
     #
     def major_version
       number_component[0]
     end
 
-    # @return [Fixnum] The SemVer minor version.
+    # @return [Fixnum] The minor version.
     #
     def minor
       number_component[1]
     end
 
-    # @return [Fixnum] The SemVer patch version.
+    # @return [Fixnum] The patch version.
     #
     def patch
       number_component[2]
@@ -202,25 +200,31 @@ module VersionKit
     #         - Precedence for two pre-release versions with the same major,
     #           minor, and patch version MUST be determined by comparing each
     #           dot separated identifier from left to right until a difference
-    #           is found as follows: identifiers consisting of only digits are
-    #           compared numerically and identifiers with letters or hyphens
-    #           are compared lexically in ASCII sort order. Numeric identifiers
-    #           always have lower precedence than non-numeric identifiers. A
-    #           larger set of pre-release fields has a higher precedence than a
-    #           smaller set, if all of the preceding identifiers are equal.
+    #           is found as follows:
+    #           - identifiers consisting of only digits are compared
+    #             numerically and identifiers with letters or hyphens are
+    #             compared lexically in ASCII sort order.
+    #           - Numeric identifiers always have lower precedence than
+    #             non-numeric identifiers.
+    #           - A larger set of pre-release fields has a higher precedence
+    #             than a smaller set, if all of the preceding identifiers are
+    #             equal.
     #         - Build metadata SHOULD be ignored when determining version
     #           precedence.
     #
     def <=>(other)
       return nil unless other.class == self.class
+      result = nil
 
-      result = ComponentsHelper.compare_numerical_component(self, other)
-      return result if result != 0
+      result ||= ComponentsHelper.compare_number_component(
+        number_component, other.number_component
+      )
 
-      result = ComponentsHelper.compare_pre_release_component(self, other)
-      return result if result != 0
+      result ||= ComponentsHelper.compare_pre_release_component(
+        pre_release_component, other.pre_release_component
+      )
 
-      0
+      result || 0
     end
   end
 end
