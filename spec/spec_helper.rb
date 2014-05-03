@@ -11,7 +11,9 @@ if ENV['CI'] || ENV['GENERATE_COVERAGE']
   elsif ENV['GENERATE_COVERAGE']
     SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
   end
-  SimpleCov.start
+  SimpleCov.start do
+    add_filter '/vendor/'
+  end
 end
 
 # Set up
