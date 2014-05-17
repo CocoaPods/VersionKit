@@ -20,61 +20,61 @@ end
 
 begin
 
-	require 'bundler/gem_tasks'
+  require 'bundler/gem_tasks'
 
-	# Spec
-	#-----------------------------------------------------------------------------#
+  # Spec
+  #-----------------------------------------------------------------------------#
 
-	namespace :spec do
-		def specs(dir)
-			FileList["spec/#{dir}/*_spec.rb"].shuffle.join(' ')
-		end
+  namespace :spec do
+    def specs(dir)
+      FileList["spec/#{dir}/*_spec.rb"].shuffle.join(' ')
+    end
 
-		desc 'Automatically run specs for updated files'
-		task :kick do
-			exec 'bundle exec kicker -c'
-		end
+    desc 'Automatically run specs for updated files'
+    task :kick do
+      exec 'bundle exec kicker -c'
+    end
 
-		task :all do
-			title 'Running Unit Tests'
-			sh "bundle exec bacon #{specs('**')}"
+    task :all do
+      title 'Running Unit Tests'
+      sh "bundle exec bacon #{specs('**')}"
 
-			title 'Checking code style...'
-			Rake::Task['rubocop'].invoke
-		end
-	end
+      title 'Checking code style...'
+      Rake::Task['rubocop'].invoke
+    end
+  end
 
 
 
-	desc 'Run all specs'
-	task :spec => 'spec:all'
+  desc 'Run all specs'
+  task :spec => 'spec:all'
 
-	# Coverage
-	#-----------------------------------------------------------------------------#
+  # Coverage
+  #-----------------------------------------------------------------------------#
 
-	desc 'Generates & opens the coverage report'
-	task :coverage do
-		title 'Generating Coverage Report'
-		sh "env GENERATE_COVERAGE=true bundle exec bacon --quiet #{specs('**')}"
-		title 'Opening Report'
-		puts 'Coverage report available at `coverage/index.html`'
-		sh 'open coverage/index.html'
-	end
+  desc 'Generates & opens the coverage report'
+  task :coverage do
+    title 'Generating Coverage Report'
+    sh "env GENERATE_COVERAGE=true bundle exec bacon --quiet #{specs('**')}"
+    title 'Opening Report'
+    puts 'Coverage report available at `coverage/index.html`'
+    sh 'open coverage/index.html'
+  end
 
-	# Rubocop
-	#-----------------------------------------------------------------------------#
+  # Rubocop
+  #-----------------------------------------------------------------------------#
 
-	desc 'Checks code style'
-	task :rubocop do
-		if RUBY_VERSION >= '1.9.3'
-			require 'rubocop'
-			cli = Rubocop::CLI.new
-			result = cli.run
-			abort('RuboCop failed!') unless result == 0
-		else
-			puts '[!] Ruby > 1.9 is required to run style checks'
-		end
-	end
+  desc 'Checks code style'
+  task :rubocop do
+    if RUBY_VERSION >= '1.9.3'
+      require 'rubocop'
+      cli = Rubocop::CLI.new
+      result = cli.run
+      abort('RuboCop failed!') unless result == 0
+    else
+      puts '[!] Ruby > 1.9 is required to run style checks'
+    end
+  end
 
 rescue LoadError
   $stderr.puts "\033[0;31m" \
