@@ -20,7 +20,7 @@ module VersionKit
     #
     #
     def satisfied_by?(candidate_version)
-      requirement_list.satisfied_by?(version)
+      requirement_list.satisfied_by?(candidate_version)
     end
   end
 end
