@@ -67,7 +67,7 @@ module VersionKit
       when String, Version
         Requirement.new(requirement)
       else
-        raise ArgumentError, "Unable to normalize requirement " \
+        raise ArgumentError, 'Unable to normalize requirement ' \
           "`#{requirement.inspect}`"
       end
     end
