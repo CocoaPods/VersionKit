@@ -104,6 +104,7 @@ module VersionKit
         operator = splitted[0]
         version = splitted[1]
       end
+      @version_specificity = version.scan(/[^-+]+/).first.split('.').count
       version = Version.normalize(version) if version
       [operator, version]
     end
@@ -133,9 +134,7 @@ module VersionKit
     #         to the optimistic operator (`~>`) given the reference version.
     #
     def bumped_reference_version
-      number_component = reference_version.scan(/[^-+]+/).first
-      components = number_component.split('.')
-      index = components.count - 2
+      index = @version_specificity - 2
       Version::Helper.bump(reference_version, index)
     end
 

@@ -101,6 +101,17 @@ module VersionKit
           @subject.should.be.not.satisfied_by?('2.2.0')
           @subject.should.be.not.satisfied_by?('2.2')
         end
+
+        it 'returns whether a version satisfies the `~>` operator ' \
+           'on a non-patch reference version' do
+          @subject = Requirement.new('~> 2.1')
+          @subject.should.be.satisfied_by?('2.1')
+          @subject.should.be.satisfied_by?('2.1.0')
+          @subject.should.be.satisfied_by?('2.1.5')
+          @subject.should.be.satisfied_by?('2.2.0')
+          @subject.should.be.satisfied_by?('2.2')
+          @subject.should.not.be.satisfied_by?('2.0.1')
+        end
       end
     end
 
