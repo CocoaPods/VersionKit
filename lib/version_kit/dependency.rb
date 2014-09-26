@@ -22,5 +22,10 @@ module VersionKit
     def satisfied_by?(candidate_version)
       requirement_list.satisfied_by?(candidate_version)
     end
+
+    def ==(other)
+      name == other.name &&
+        requirement_list == other.requirement_list
+    end
   end
 end
