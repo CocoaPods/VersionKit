@@ -27,5 +27,9 @@ module VersionKit
       name == other.name &&
         requirement_list == other.requirement_list
     end
+
+    def hash
+      name.hash ^ requirement_list.hash
+    end
   end
 end
