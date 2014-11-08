@@ -23,6 +23,13 @@ module VersionKit
       requirement_list.satisfied_by?(candidate_version)
     end
 
+    # @!group Object methods
+    #-------------------------------------------------------------------------#
+
+    def to_s
+      "#{name} (#{requirement_list})"
+    end
+
     def ==(other)
       name == other.name &&
         requirement_list == other.requirement_list
