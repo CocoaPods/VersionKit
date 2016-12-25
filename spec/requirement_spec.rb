@@ -139,7 +139,7 @@ module VersionKit
 
       describe 'hash' do
         it 'returns the hash' do
-          Requirement.new('> 2.1').hash.class.should == Integer
+          Requirement.new('> 2.1').hash.should.be.kind_of Integer
         end
       end
     end

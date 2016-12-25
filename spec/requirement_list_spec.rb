@@ -78,7 +78,7 @@ module VersionKit
 
       describe 'hash' do
         it 'returns the hash' do
-          @subject.hash.class.should == Integer
+          @subject.hash.should.be.kind_of Integer
         end
       end
 

@@ -147,13 +147,16 @@ module VersionKit
       # rubocop:disable CyclomaticComplexity
       #
       def self.validate_components?(components)
-        components.is_a?(Array) &&
+        return false unless components.is_a?(Array) &&
           components.map(&:class).uniq == [Array] &&
           components.count == 3 &&
-          components.first.count == 3 &&
-          (components[0].map(&:class) - [Integer]).empty? &&
-          (components[1].map(&:class) - [String, Integer]).empty? &&
-          (components[2].map(&:class) - [String, Integer]).empty?
+          components.first.count == 3
+
+        return false unless components[0].all? { |c| c.is_a?(Integer) }
+        return false unless components[1].all? { |c| c.is_a?(Integer) || c.is_a?(String) }
+        return false unless components[2].all? { |c| c.is_a?(Integer) || c.is_a?(String) }
+
+        true
       end
       #
       # rubocop:enable CyclomaticComplexity
