@@ -69,13 +69,13 @@ module VersionKit
       "#{operator} #{reference_version}"
     end
 
-    # @return [Fixnum] Useful for sorting a list of requirements.
+    # @return [Integer] Useful for sorting a list of requirements.
     #
     def <=>(other)
       to_s <=> other.to_s
     end
 
-    # @return [Fixnum] The hash of the instance.
+    # @return [Integer] The hash of the instance.
     #
     def hash
       to_s.hash

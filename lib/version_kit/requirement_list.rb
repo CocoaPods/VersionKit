@@ -45,7 +45,7 @@ module VersionKit
       requirements.map(&:to_s).join(', ')
     end
 
-    # @return [Fixnum] The hash of the instance.
+    # @return [Integer] The hash of the instance.
     #
     def hash
       to_s.hash

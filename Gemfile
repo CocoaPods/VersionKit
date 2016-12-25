@@ -2,8 +2,6 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'resolver', :git => 'https://github.com/CocoaPods/Resolver.git'
-
 group :development do
   gem 'bacon'
   gem 'coveralls', :require => false

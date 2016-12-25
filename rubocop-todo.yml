@@ -1,14 +1,2 @@
 Documentation:
   Enabled: false
-
-LineLength:
-  Exclude:
-    - lib/version_kit/resolver.rb
-
-MethodLength:
-  Exclude:
-    - lib/version_kit/resolver.rb
-
-UselessAssignment:
-  Exclude:
-    - lib/version_kit/resolver.rb

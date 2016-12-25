@@ -13,7 +13,7 @@ module VersionKit
       # @param  [Array<String>] components
       #         The list of the components.
       #
-      # @return [Array<String,Fixnum>] The list of the elements of the
+      # @return [Array<String,Integer>] The list of the elements of the
       #         component.
       #
       def self.split_components(version)
@@ -35,7 +35,7 @@ module VersionKit
       # @param  [String] component
       #         The string of the component to split in identifiers.
       #
-      # @return [Array<String,Fixnum>] The list of the identifiers of the
+      # @return [Array<String,Integer>] The list of the identifiers of the
       #         component.
       #
       def self.split_identifiers(component)
@@ -51,13 +51,13 @@ module VersionKit
       # Compares the number component of one version with the one of another
       # version.
       #
-      # @param  [Array<Fixnum>] first
+      # @param  [Array<Integer>] first
       #         The component of the first version.
       #
-      # @param  [Array<Fixnum>] second
+      # @param  [Array<Integer>] second
       #         The component of the second version.
       #
-      # @return [Fixnum] See #<=>
+      # @return [Integer] See #<=>
       #
       def self.compare_number_component(first, second)
         count = [first.count, second.count].max
@@ -72,13 +72,13 @@ module VersionKit
       # Compares the pre-release component of one version with the one of
       # another version.
       #
-      # @param  [Array<Fixnum>] first
+      # @param  [Array<Integer>] first
       #         The component of the first version.
       #
-      # @param  [Array<Fixnum>] second
+      # @param  [Array<Integer>] second
       #         The component of the second version.
       #
-      # @return [Fixnum] See #<=>
+      # @return [Integer] See #<=>
       #
       def self.compare_pre_release_component(first, second)
         result = (first.empty? ? 1 : 0) <=> (second.empty? ? 1 : 0)
@@ -95,20 +95,20 @@ module VersionKit
 
       # Compares two pre-release identifiers.
       #
-      # @param  [String,Fixnum] fist
+      # @param  [String,Integer] fist
       #         The first identifier to compare.
       #
-      # @param  [String,Fixnum] second
+      # @param  [String,Integer] second
       #         The second identifier to compare.
       #
-      # @return [Fixnum] See #<=>
+      # @return [Integer] See #<=>
       #
       def self.compare_pre_release_identifiers(first, second)
         result = compare(first, second)
         result ||= compare(first.is_a?(String), second.is_a?(String))
         return result if result
 
-        if first.is_a?(Fixnum)
+        if first.is_a?(Integer)
           first.to_i <=> second.to_i
         elsif first.is_a?(String)
           first.to_s <=> second.to_s
@@ -124,7 +124,7 @@ module VersionKit
       # @param  [Object] second
       #         The second object to compare.
       #
-      # @return [Fixnum] See #<=>
+      # @return [Integer] See #<=>
       # @return [Nil] If the comparison didn't produce any result.
       #
       def self.compare(first, second)
@@ -139,7 +139,7 @@ module VersionKit
 
       # Checks whether the given components are valid.
       #
-      # @param  [Array<Array<String, Fixnum>>] components
+      # @param  [Array<Array<String, Integer>>] components
       #         The components to check.
       #
       # @return [Bool] If the given components are valid.
@@ -151,9 +151,9 @@ module VersionKit
           components.map(&:class).uniq == [Array] &&
           components.count == 3 &&
           components.first.count == 3 &&
-          (components[0].map(&:class) - [Fixnum]).empty? &&
-          (components[1].map(&:class) - [String, Fixnum]).empty? &&
-          (components[2].map(&:class) - [String, Fixnum]).empty?
+          (components[0].map(&:class) - [Integer]).empty? &&
+          (components[1].map(&:class) - [String, Integer]).empty? &&
+          (components[2].map(&:class) - [String, Integer]).empty?
       end
       #
       # rubocop:enable CyclomaticComplexity

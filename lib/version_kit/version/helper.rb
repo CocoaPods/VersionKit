@@ -50,7 +50,7 @@ module VersionKit
         return nil unless version.pre_release_component
         pre_release_component = []
         version.pre_release_component.each do |element|
-          element = element.succ if element.is_a?(Fixnum)
+          element = element.succ if element.is_a?(Integer)
           pre_release_component << element
         end
         if version.pre_release_component != pre_release_component

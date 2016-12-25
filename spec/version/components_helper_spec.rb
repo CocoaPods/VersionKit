@@ -41,7 +41,7 @@ module VersionKit
       it 'converts strings composed only by digits to an integer' do
         component = '1.rc.2'
         result = @subject.split_identifiers(component)
-        result.map(&:class).should == [Fixnum, String, Fixnum]
+        result.map(&:class).should == [Integer, String, Integer]
       end
     end
 

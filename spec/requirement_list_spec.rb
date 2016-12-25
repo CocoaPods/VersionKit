@@ -78,7 +78,7 @@ module VersionKit
 
       describe 'hash' do
         it 'returns the hash' do
-          @subject.hash.class.should == Fixnum
+          @subject.hash.class.should == Integer
         end
       end
 

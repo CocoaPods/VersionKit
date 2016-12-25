@@ -39,7 +39,7 @@ module VersionKit
 
     include Comparable
 
-    # @return [Array<Array<Fixnum,String>>] The list of the components of the
+    # @return [Array<Array<Integer,String>>] The list of the components of the
     # version.
     #
     attr_reader :components
@@ -51,7 +51,7 @@ module VersionKit
     # standard clients can use the `Version::valid?` method to check any
     # string.
     #
-    # @param  [#to_s, Array<Array<String, Fixnum>>] version
+    # @param  [#to_s, Array<Array<String, Integer>>] version
     #         A representation of a version convertible to a string or the
     #         components of a version.
     #
@@ -100,7 +100,7 @@ module VersionKit
     # Normalizes the given version components by defaulting the minor and the
     # patch version to 0 if possible.
     #
-    # @param  [Array<Array<String, Fixnum>>] components
+    # @param  [Array<Array<String, Integer>>] components
     #         The components to normalize.
     #
     # @return [Array] The normalized or the original components.
@@ -131,40 +131,40 @@ module VersionKit
     # @!group Semantic Versioning
     #-------------------------------------------------------------------------#
 
-    # @return [Array<Fixnum>] The list of the identifiers of the number
+    # @return [Array<Integer>] The list of the identifiers of the number
     #         component.
     #
     def number_component
       @components[0]
     end
 
-    # @return [Array<String, Fixnum>] The list of the identifiers of the
+    # @return [Array<String, Integer>] The list of the identifiers of the
     #         pre-release component.
     #
     def pre_release_component
       @components[1]
     end
 
-    # @return [Array<String, Fixnum>] The list of the identifiers of the build
+    # @return [Array<String, Integer>] The list of the identifiers of the build
     #         component.
     #
     def build_component
       @components[2]
     end
 
-    # @return [Fixnum] The major version.
+    # @return [Integer] The major version.
     #
     def major_version
       number_component[0]
     end
 
-    # @return [Fixnum] The minor version.
+    # @return [Integer] The minor version.
     #
     def minor
       number_component[1]
     end
 
-    # @return [Fixnum] The patch version.
+    # @return [Integer] The patch version.
     #
     def patch
       number_component[2]
@@ -221,7 +221,7 @@ module VersionKit
       self.class == other.class && to_s == other.to_s
     end
 
-    # @return [Fixnum] The hash value for this instance.
+    # @return [Integer] The hash value for this instance.
     #
     def hash
       [to_s].hash
@@ -231,7 +231,7 @@ module VersionKit
     #
     # @param  [Object] The object to compare.
     #
-    # @return [Fixnum] -1 means self is smaller than other. 0 means self is
+    # @return [Integer] -1 means self is smaller than other. 0 means self is
     #         equal to other. 1 means self is bigger than other.
     # @return [Nil] If the two objects could not be compared.
     #
